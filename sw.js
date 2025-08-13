@@ -1,13 +1,17 @@
-const CACHE_NAME = 'calculator-v1';
+const CACHE_NAME = 'calculator-v2';
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
-  './calc192.png',
-  './calc512.png',
-  './calc.png'
+  './sw.js',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-icon-180x180.png',
+  './icons/android-icon-192x192.png',
+  './icons/favicon-32x32.png',
+  // أضف باقي الأيقونات إذا أردت التخزين الكامل
 ];
 
 self.addEventListener('install', (event) => {
