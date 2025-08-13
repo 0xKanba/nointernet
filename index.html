@@ -6,61 +6,51 @@
   <title>الحاسبة السريعة</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="shortcut icon" href="/icons/calc16.png" type="image/png">
-  <!-- Apple Touch Icon -->
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-
-  <!-- Favicon for 32x32 -->
   <link rel="icon" type="image/png" sizes="32x32" href="/icons/calc32.png">
-
-  <!-- Favicon for 16x16 -->
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/calc16.png">
-
-  <!-- Web App Manifest -->
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
   <div class="calculator">
-    <input type="text" id="result" disabled />
+    <input type="text" id="result" disabled placeholder="0" />
+    <div id="history">
+      <h4>السجل</h4>
+      <ul id="history-list"></ul>
+      <button id="clear-history">مسح السجل</button>
+    </div>
     <div class="buttons">
       <button onclick="clearDisplay()">C</button>
-      <button onclick="deleteChar()">⌫</button>
+      <button onclick="appendValue('/')">÷</button>
+      <button onclick="appendValue('*')">×</button>
+      <button onclick="appendValue('-')">−</button>
+      <button onclick="appendValue('+')">+</button>
       <button onclick="appendValue('%')">%</button>
-      <button onclick="appendValue('/')" class="op">÷</button>
-
+      <button onclick="appendValue('.')">.</button>
+      <button onclick="deleteChar()">⌫</button>
       <button onclick="appendValue('7')">7</button>
       <button onclick="appendValue('8')">8</button>
       <button onclick="appendValue('9')">9</button>
-      <button onclick="appendValue('*')" class="op">×</button>
-
       <button onclick="appendValue('4')">4</button>
       <button onclick="appendValue('5')">5</button>
       <button onclick="appendValue('6')">6</button>
-      <button onclick="appendValue('-')" class="op">−</button>
-
       <button onclick="appendValue('1')">1</button>
       <button onclick="appendValue('2')">2</button>
       <button onclick="appendValue('3')">3</button>
-      <button onclick="appendValue('+')" class="op">+</button>
-
       <button onclick="appendValue('0')" class="zero">0</button>
-      <button onclick="appendValue('.')">.</button>
       <button onclick="calculate()" class="equals">=</button>
     </div>
   </div>
 
   <script src="script.js"></script>
   <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then((registration) => {
-          console.log('Service Worker مسجل بنجاح:', registration.scope);
-        })
-        .catch((error) => {
-          console.log('فشل تسجيل Service Worker:', error);
-        });
-    });
-  }
-</script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW مسجل:', reg.scope))
+          .catch(err => console.log('فشل:', err));
+      });
+    }
+  </script>
 </body>
 </html>
