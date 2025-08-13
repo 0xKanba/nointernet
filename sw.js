@@ -6,12 +6,11 @@ const urlsToCache = [
   './script.js',
   './manifest.json',
   './sw.js',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-icon-180x180.png',
-  './icons/android-icon-192x192.png',
-  './icons/favicon-32x32.png',
-  // أضف باقي الأيقونات إذا أردت التخزين الكامل
+  './icons/calc192.png',
+  './icons/calc512.png',
+  './icons/apple-touch-icon.png',
+  './icons/calc32.png',
+  './icons/calc16.png'
 ];
 
 self.addEventListener('install', (event) => {
