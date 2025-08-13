@@ -2,7 +2,7 @@
   "name": "الحاسبة السريعة",
   "short_name": "الحاسبة",
   "description": "حاسبة بسيطة وسريعة تعمل بدون إنترنت.",
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1e1e",
   "theme_color": "#ff9500",
