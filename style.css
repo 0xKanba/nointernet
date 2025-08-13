@@ -4,152 +4,212 @@
   box-sizing: border-box;
 }
 
-/* الخلفية حسب المظهر */
 body {
   font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
   min-height: 100vh;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  direction: rtl;
-  background: linear-gradient(135deg, #87ceeb, #1e90ff);
-  transition: background 0.5s ease;
+  transition: background 0.5s;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(135deg, #0c0c2b, #1a1a2e, #000000);
-  }
+body.dark {
+  background: linear-gradient(135deg, #121212, #1e1e1e, #0a0a0a);
 }
 
-.calculator {
-  width: 320px;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(10px);
+/* Language Toggle */
+.lang-toggle {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 10;
 }
 
-#result {
-  width: 100%;
-  height: 100px;
-  text-align: right;
-  font-size: 2.8rem;
-  padding: 15px;
+#lang-btn {
+  padding: 6px 12px;
+  font-size: 0.9rem;
   border: none;
-  outline: none;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
-  background: rgba(0, 0, 0, 0.3);
-  transition: background 0.3s;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
 }
 
-/* التاريخ */
-#history {
+/* Container: 89% Full Screen */
+.container {
+  display: flex;
+  width: 89vw;
+  height: 89vh;
+  max-width: 1200px;
+  max-height: 800px;
+  margin: 20px auto;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  direction: ltr;
+}
+
+/* History Panel */
+.history-panel {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.4s ease, opacity 0.3s;
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+}
+
+.history-panel.active {
+  width: 300px;
+  opacity: 1;
+}
+
+.history-header {
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+
+#history-list {
+  list-style: none;
   padding: 10px;
-  max-height: 200px;
+  flex: 1;
   overflow-y: auto;
   font-size: 0.9rem;
-  color: #ddd;
 }
 
-#history h4 {
-  margin-bottom: 8px;
-  color: #fff;
-}
-
-#history ul {
-  list-style: none;
-  margin-bottom: 10px;
-}
-
-#history li {
-  padding: 4px 0;
+#history-list li {
+  padding: 6px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #clear-history {
-  background: #ff4d4d;
+  padding: 8px;
+  background: #e74c3c;
   color: white;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: 8px;
+  margin: 10px;
   cursor: pointer;
-  font-size: 0.9rem;
 }
 
-/* الأزرار */
+/* Calculator */
+.calculator {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+#result {
+  width: 90%;
+  margin: 20px auto;
+  padding: 15px 20px;
+  font-size: 2rem;
+  text-align: right;
+  border: none;
+  outline: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(5px);
+}
+
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.2);
+  gap: 16px;
+  padding: 20px;
 }
 
-button {
-  border: none;
-  outline: none;
-  height: 60px;
-  font-size: 1.5rem;
-  border-radius: 12px;
+.btn {
+  all: unset;
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  font-size: 1.3rem;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
+  user-select: none;
 }
 
-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-button:active {
+.btn:active {
   transform: translateY(0);
 }
 
-button.equals {
-  grid-column: span 2;
+.btn.circle {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.btn.op {
   background: #ff9500;
+}
+
+.btn.equals {
+  background: #2ecc71;
   font-weight: bold;
 }
 
-button.zero {
+.btn.zero {
   grid-column: span 2;
+  width: 156px;
 }
 
-/* دعم المظهر الفاتح */
-@media (prefers-color-scheme: light) {
+/* Responsive: Mobile - History at Bottom */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: 89vh;
+  }
+
+  .history-panel {
+    width: 100% !important;
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .history-panel.active {
+    max-height: 300px;
+    opacity: 1;
+  }
+
+  .btn {
+    height: 60px;
+    width: 60px;
+    font-size: 1.2rem;
+  }
+
   #result {
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-  }
-  button {
-    color: #333;
-  }
-  #history {
-    color: #555;
-    background: rgba(0, 0, 0, 0.05);
-  }
-  #history h4, #history li {
-    color: #333;
-  }
-  #clear-history {
-    background: #d9534f;
-  }
-  .buttons {
-    background: rgba(255, 255, 255, 0.4);
+    font-size: 1.8rem;
   }
 }
 
-@media (max-width: 320px) {
-  .calculator {
-    width: 290px;
-  }
-  #result {
-    font-size: 2.2rem;
-  }
-  button {
-    font-size: 1.3rem;
-  }
+/* RTL Arabic */
+body[dir="rtl"] .container {
+  direction: rtl;
+}
+
+body[dir="rtl"] .lang-toggle {
+  left: auto;
+  right: 15px;
 }
