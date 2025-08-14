@@ -1,11 +1,11 @@
 {
   "name": "Calculator",
   "short_name": "Calculator",
-  "description": "A fast and simple calculator that works offline.",
+  "description": "A beautiful circular calculator that works offline",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1b1b23",
-  "theme_color": "#1b1b1b",
+  "background_color": "#6e8efb",
+  "theme_color": "#a777e3",
   "icons": [
     {
       "src": "icons/calc192.png",
