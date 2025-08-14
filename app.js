@@ -18,7 +18,6 @@ installButton.addEventListener('click', async () => {
     
     // Wait for user response
     const { outcome } = await deferredPrompt.userChoice;
-    console.log(`Installation outcome: ${outcome}`);
     
     // Hide button regardless of choice
     installButton.style.display = 'none';
