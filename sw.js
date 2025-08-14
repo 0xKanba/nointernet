@@ -1,5 +1,5 @@
 // Service Worker for Offline Support
-const CACHE_NAME = 'calculator-offline-v5';
+const CACHE_NAME = 'circle-calculator-v1';
 const urlsToCache = [
   '/',
   'index.html',
@@ -33,16 +33,14 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
-  self.clients.claim();
 });
 
 // Fetch handling
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    fetch(event.request)
-      .catch(() => caches.match(event.request))
+    caches.match(event.request)
       .then((response) => {
-        return response || caches.match('index.html');
+        return response || fetch(event.request);
       })
   );
 });
