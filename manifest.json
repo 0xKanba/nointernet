@@ -4,8 +4,8 @@
   "description": "A fast and simple calculator that works offline.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1e1e1e",
-  "theme_color": "#ff9500",
+  "background_color": "#1b1b23",
+  "theme_color": "#1b1b1b",
   "icons": [
     {
       "src": "icons/calc192.png",
