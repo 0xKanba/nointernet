@@ -3,276 +3,288 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-:root {
-    --primary-bg: #1c1c1e;
-    --secondary-bg: #2c2c2e;
-    --accent-color: #007aff;
-    --orange-color: #ff9f0a;
-    --text-primary: #ffffff;
-    --text-secondary: #8e8e93;
-    --number-btn: #3a3a3c;
-    --function-btn: #5a5a5c;
-    --operator-btn: var(--orange-color);
-    --equals-btn: var(--orange-color);
-    --clear-btn: #a6a6a6;
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    --glass-bg: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.2);
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--primary-bg);
-    color: var(--text-primary);
-    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: #fff;
     height: 100vh;
-    position: relative;
-    transition: background-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: background 0.5s ease;
+    padding: 0;
+    margin: 0;
 }
 
 /* Install Button */
 .install-btn {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 15px;
+    left: 15px;
     z-index: 100;
-    padding: 8px 16px;
-    background: rgba(0, 122, 255, 0.8);
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     color: white;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
-    backdrop-filter: blur(20px);
+    backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     display: none;
 }
 
 .install-btn:hover {
-    background: rgba(0, 122, 255, 1);
+    background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
-}
-
-/* Main Calculator Container */
-.calculator-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    padding: 20px;
 }
 
 /* Calculator */
 .calculator {
     width: 100%;
-    max-width: 400px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 24px;
+    max-width: 500px;
     padding: 20px;
-    box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
 }
 
 /* Display */
 .display-container {
-    background: var(--secondary-bg);
-    border-radius: 16px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 30px;
+    padding: 25px;
     text-align: right;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    margin-bottom: 10px;
 }
 
 .expression {
-    height: 24px;
-    font-size: 16px;
-    color: var(--text-secondary);
-    margin-bottom: 8px;
+    height: 30px;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.result {
+    width: 100%;
+    font-size: 48px;
+    font-weight: 300;
+    color: white;
+    text-align: right;
+    min-height: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-#result {
-    width: 100%;
-    background: none;
-    border: none;
-    outline: none;
-    font-size: 42px;
-    font-weight: 300;
-    color: var(--text-primary);
-    text-align: right;
-    min-height: 56px;
-}
-
-/* Scientific Buttons */
-.scientific-buttons {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-}
-
-.sci-btn {
-    height: 36px;
-    font-size: 12px;
-    background: var(--function-btn);
-    border: none;
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-/* Main Buttons Grid */
+/* Buttons Grid */
 .buttons-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    gap: 15px;
 }
 
 .btn {
-    height: 65px;
     border: none;
-    border-radius: 16px;
-    font-size: 24px;
+    border-radius: 50%;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     position: relative;
     overflow: hidden;
-    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1/1;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn::before {
+.btn::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.3s ease;
 }
 
-.btn:hover::before {
+.btn:hover::after {
     opacity: 1;
+}
+
+.btn:active {
+    transform: scale(0.92);
 }
 
 /* Button Types */
 .number-btn {
-    background: var(--number-btn);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .function-btn {
-    background: var(--function-btn);
-    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 .operator-btn {
-    background: var(--operator-btn);
-    color: white;
+    background: rgba(255, 159, 10, 0.7);
     font-weight: 600;
 }
 
 .equals-btn {
-    background: var(--equals-btn);
-    color: white;
+    background: rgba(255, 69, 58, 0.8);
     font-weight: 600;
-    font-size: 28px;
+    font-size: 32px;
+    grid-column: span 2;
+    border-radius: 30px;
+    aspect-ratio: unset;
 }
 
 .clear-btn {
-    background: var(--clear-btn);
-    color: var(--primary-bg);
-    font-weight: 600;
+    background: rgba(255, 59, 48, 0.7);
+}
+
+.sci-btn {
+    background: rgba(0, 122, 255, 0.3);
+    font-size: 18px;
 }
 
 .zero-btn {
     grid-column: span 2;
-    text-align: left;
-    padding-left: 24px;
+    border-radius: 30px;
+    aspect-ratio: unset;
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-    .calculator-container {
-        padding: 10px;
-    }
-    
+@media (max-width: 600px) {
     .calculator {
-        max-width: none;
-        padding: 16px;
-        border-radius: 20px;
+        width: 100%;
+        padding: 10px;
+        max-width: 100%;
     }
     
     .display-container {
-        padding: 16px;
+        padding: 20px;
+        border-radius: 25px;
+    }
+    
+    .result {
+        font-size: 40px;
+    }
+    
+    .buttons-grid {
+        gap: 10px;
     }
     
     .btn {
-        height: 55px;
-        font-size: 22px;
-        border-radius: 14px;
-    }
-    
-    #result {
-        font-size: 36px;
-        min-height: 48px;
-    }
-}
-
-@media (max-width: 480px) {
-    .calculator-container {
-        padding: 8px;
-    }
-    
-    .calculator {
-        padding: 12px;
-        border-radius: 18px;
-    }
-    
-    .btn {
-        height: 50px;
         font-size: 20px;
     }
     
-    #result {
-        font-size: 32px;
-        min-height: 44px;
+    .sci-btn {
+        font-size: 16px;
     }
 }
 
-/* Button Effects */
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+@media (max-width: 400px) {
+    .result {
+        font-size: 36px;
+    }
+    
+    .btn {
+        font-size: 18px;
+    }
+    
+    .sci-btn {
+        font-size: 14px;
+    }
 }
 
-.operator-btn:hover, .equals-btn:hover {
-    box-shadow: 0 4px 12px rgba(255, 159, 10, 0.3);
+/* Light theme */
+@media (prefers-color-scheme: light) {
+    body {
+        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    }
+    
+    .display-container {
+        background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .expression {
+        color: rgba(0, 0, 0, 0.7);
+    }
+    
+    .result {
+        color: #333;
+    }
+    
+    .btn {
+        background: rgba(255, 255, 255, 0.35);
+        color: #333;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .number-btn {
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .function-btn {
+        background: rgba(255, 255, 255, 0.45);
+    }
+    
+    .operator-btn {
+        background: rgba(255, 159, 10, 0.8);
+        color: white;
+    }
+    
+    .equals-btn {
+        background: rgba(255, 69, 58, 0.9);
+        color: white;
+    }
+    
+    .clear-btn {
+        background: rgba(255, 59, 48, 0.8);
+        color: white;
+    }
+    
+    .sci-btn {
+        background: rgba(0, 122, 255, 0.4);
+        color: white;
+    }
 }
 
 /* Animation for button press */
 @keyframes buttonPress {
     0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
+    50% { transform: scale(0.92); }
     100% { transform: scale(1); }
 }
 
 .btn.pressed {
-    animation: buttonPress 0.15s ease;
+    animation: buttonPress 0.2s ease;
 }
 
 /* Error states */
 .error {
-    color: rgba(255, 69, 58, 1) !important;
+    color: #ff3b30 !important;
     animation: shake 0.5s ease-in-out;
 }
 
@@ -280,27 +292,4 @@ body {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
-}
-
-/* Light theme */
-@media (prefers-color-scheme: light) {
-    :root {
-        --primary-bg: #f2f2f7;
-        --secondary-bg: #ffffff;
-        --text-primary: #1c1c1e;
-        --text-secondary: #6d6d70;
-        --number-btn: #ffffff;
-        --function-btn: #d1d1d6;
-        --clear-btn: #d1d1d6;
-        --glass-bg: rgba(0, 0, 0, 0.05);
-        --glass-border: rgba(0, 0, 0, 0.1);
-    }
-}
-
-/* High contrast mode */
-@media (prefers-contrast: high) {
-    :root {
-        --glass-bg: rgba(255, 255, 255, 0.2);
-        --glass-border: rgba(255, 255, 255, 0.4);
-    }
 }
