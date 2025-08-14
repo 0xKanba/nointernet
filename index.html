@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Circle Calculator</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icons/calc16.png" type="image/png">
@@ -16,56 +16,60 @@
     <button id="install-btn" class="install-btn">Install App</button>
 
     <!-- Calculator Container -->
-    <div class="calculator-container">
-        <!-- Calculator -->
-        <div class="calculator">
-            <!-- Display -->
-            <div class="display-container">
-                <div class="expression" id="expression"></div>
-                <input type="text" id="result" readonly placeholder="0">
-            </div>
+    <div class="calculator">
+        <!-- Display -->
+        <div class="display-container">
+            <div class="expression" id="expression"></div>
+            <div id="result" class="result">0</div>
+        </div>
 
-            <!-- Scientific Buttons -->
-            <div class="scientific-buttons">
-                <button class="btn sci-btn" onclick="appendFunction('sin(')">sin</button>
-                <button class="btn sci-btn" onclick="appendFunction('cos(')">cos</button>
-                <button class="btn sci-btn" onclick="appendFunction('tan(')">tan</button>
-                <button class="btn sci-btn" onclick="appendFunction('log(')">log</button>
-                <button class="btn sci-btn" onclick="appendFunction('ln(')">ln</button>
-                <button class="btn sci-btn" onclick="appendValue('π')">π</button>
-                <button class="btn sci-btn" onclick="appendValue('e')">e</button>
-                <button class="btn sci-btn" onclick="appendFunction('√(')">√</button>
-                <button class="btn sci-btn" onclick="appendValue('^')">x^y</button>
-                <button class="btn sci-btn" onclick="appendValue('!')">n!</button>
-            </div>
-
-            <!-- Main Buttons Grid -->
-            <div class="buttons-grid">
-                <button class="btn clear-btn" onclick="clearAll()">AC</button>
-                <button class="btn function-btn" onclick="clearEntry()">CE</button>
-                <button class="btn function-btn" onclick="percentage()">%</button>
-                <button class="btn operator-btn" onclick="appendOperator('/')">÷</button>
-
-                <button class="btn number-btn" onclick="appendValue('7')">7</button>
-                <button class="btn number-btn" onclick="appendValue('8')">8</button>
-                <button class="btn number-btn" onclick="appendValue('9')">9</button>
-                <button class="btn operator-btn" onclick="appendOperator('*')">×</button>
-
-                <button class="btn number-btn" onclick="appendValue('4')">4</button>
-                <button class="btn number-btn" onclick="appendValue('5')">5</button>
-                <button class="btn number-btn" onclick="appendValue('6')">6</button>
-                <button class="btn operator-btn" onclick="appendOperator('-')">−</button>
-
-                <button class="btn number-btn" onclick="appendValue('1')">1</button>
-                <button class="btn number-btn" onclick="appendValue('2')">2</button>
-                <button class="btn number-btn" onclick="appendValue('3')">3</button>
-                <button class="btn operator-btn" onclick="appendOperator('+')">+</button>
-
-                <button class="btn number-btn zero-btn" onclick="appendValue('0')">0</button>
-                <button class="btn function-btn" onclick="appendValue('.')">.</button>
-                <button class="btn function-btn" onclick="deleteChar()">⌫</button>
-                <button class="btn equals-btn" onclick="calculate()">=</button>
-            </div>
+        <!-- Buttons Grid -->
+        <div class="buttons-grid">
+            <!-- Row 1 -->
+            <button class="btn clear-btn" data-action="clearAll">AC</button>
+            <button class="btn function-btn" data-action="clearEntry">CE</button>
+            <button class="btn function-btn" data-action="percentage">%</button>
+            <button class="btn operator-btn" data-value="/">÷</button>
+            
+            <!-- Row 2 -->
+            <button class="btn sci-btn" data-value="sin(">sin</button>
+            <button class="btn sci-btn" data-value="cos(">cos</button>
+            <button class="btn sci-btn" data-value="tan(">tan</button>
+            <button class="btn operator-btn" data-value="*">×</button>
+            
+            <!-- Row 3 -->
+            <button class="btn sci-btn" data-value="log(">log</button>
+            <button class="btn sci-btn" data-value="ln(">ln</button>
+            <button class="btn sci-btn" data-value="√(">√</button>
+            <button class="btn operator-btn" data-value="-">−</button>
+            
+            <!-- Row 4 -->
+            <button class="btn sci-btn" data-value="π">π</button>
+            <button class="btn sci-btn" data-value="e">e</button>
+            <button class="btn sci-btn" data-value="^">^</button>
+            <button class="btn operator-btn" data-value="+">+</button>
+            
+            <!-- Row 5 -->
+            <button class="btn number-btn" data-value="7">7</button>
+            <button class="btn number-btn" data-value="8">8</button>
+            <button class="btn number-btn" data-value="9">9</button>
+            <button class="btn function-btn" data-action="deleteChar">⌫</button>
+            
+            <!-- Row 6 -->
+            <button class="btn number-btn" data-value="4">4</button>
+            <button class="btn number-btn" data-value="5">5</button>
+            <button class="btn number-btn" data-value="6">6</button>
+            <button class="btn function-btn" data-value=".">.</button>
+            
+            <!-- Row 7 -->
+            <button class="btn number-btn" data-value="1">1</button>
+            <button class="btn number-btn" data-value="2">2</button>
+            <button class="btn number-btn" data-value="3">3</button>
+            <button class="btn sci-btn" data-value="!">n!</button>
+            
+            <!-- Row 8 -->
+            <button class="btn number-btn zero-btn" data-value="0">0</button>
+            <button class="btn equals-btn" data-action="calculate">=</button>
         </div>
     </div>
 
