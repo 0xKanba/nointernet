@@ -1,19 +1,19 @@
 {
-  "name": "الحاسبة السريعة",
-  "short_name": "الحاسبة",
-  "description": "حاسبة بسيطة وسريعة تعمل بدون إنترنت.",
+  "name": "Advanced Calculator",
+  "short_name": "Calculator",
+  "description": "A fast and simple calculator that works offline.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1e1e1e",
   "theme_color": "#ff9500",
   "icons": [
     {
-      "src": "/icons/calc192.png",
+      "src": "icons/calc192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/calc512.png",
+      "src": "icons/calc512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
