@@ -1,4 +1,3 @@
-// مكتبة رياضية آمنة
 class MathParser {
     constructor() {
         this.functions = {
@@ -269,7 +268,7 @@ class Calculator {
             result: document.getElementById('result'),
             expression: document.getElementById('expression'),
             historyList: document.getElementById('history-list'),
-            toggleHistory: document.getElementById('toggle-history')
+            clearHistoryBtn: document.getElementById('clear-history')
         };
         
         this.init();
@@ -287,11 +286,8 @@ class Calculator {
         
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
-        this.elements.toggleHistory?.addEventListener('click', () => {
-            const panel = document.querySelector('.history-panel');
-            panel.classList.toggle('compact');
-            this.elements.toggleHistory.textContent = 
-                panel.classList.contains('compact') ? '▼' : '▲';
+        this.elements.clearHistoryBtn.addEventListener('click', () => {
+            this.clearHistory();
         });
     }
     
@@ -453,18 +449,36 @@ class Calculator {
             const li = document.createElement('li');
             li.className = 'history-item';
             
-            const exprSpan = document.createElement('span');
-            exprSpan.className = 'history-item-expression';
-            exprSpan.textContent = this.formatDisplayExpression(item.expression);
+            const date = document.createElement('div');
+            date.className = 'history-date';
+            date.textContent = this.formatDate(item.timestamp);
             
-            const resultSpan = document.createElement('span');
-            resultSpan.className = 'history-item-result';
-            resultSpan.textContent = item.result;
+            const expr = document.createElement('div');
+            expr.className = 'history-expression';
+            expr.textContent = this.formatDisplayExpression(item.expression);
             
-            li.appendChild(exprSpan);
-            li.appendChild(resultSpan);
+            const result = document.createElement('div');
+            result.className = 'history-result';
+            result.textContent = item.result;
+            
+            li.appendChild(date);
+            li.appendChild(expr);
+            li.appendChild(result);
             this.elements.historyList.appendChild(li);
         });
+    }
+    
+    formatDate(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        
+        if (date.toDateString() === now.toDateString()) {
+            return 'Today';
+        } else if (date.toDateString() === new Date(now.getTime() - 24 * 60 * 60 * 1000).toDateString()) {
+            return 'Yesterday';
+        } else {
+            return `${date.getDate()} days ago`;
+        }
     }
     
     showError(message) {
@@ -477,6 +491,11 @@ class Calculator {
             this.result = '0';
             this.updateDisplay();
         }, 1500);
+    }
+    
+    clearHistory() {
+        this.history.clear();
+        this.renderHistory();
     }
     
     handleKeyboard(e) {
@@ -540,7 +559,6 @@ class Calculator {
     }
 }
 
-// بدء تشغيل الحاسبة
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new Calculator();
     
