@@ -1,13 +1,17 @@
-// Circle Calculator - Optimized JavaScript
+// Sphere Calculator - Fully Functional
 let currentExpression = '';
 let currentResult = '0';
 let shouldResetOnNextInput = false;
+let appNames = ['Sphere Calculator', 'Math Sphere', 'Smart Calc', 'Pro Calculator'];
+let currentAppNameIndex = 0;
 
 // Elements
 const elements = {
-    result: document.querySelector('.result'),
-    expression: document.querySelector('.expression'),
-    buttons: document.querySelectorAll('.btn')
+    result: document.getElementById('result'),
+    expression: document.getElementById('expression'),
+    buttons: document.querySelectorAll('.btn'),
+    title: document.querySelector('title'),
+    refreshBtn: document.getElementById('refresh-btn')
 };
 
 // Initialize calculator
@@ -16,6 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     elements.buttons.forEach(button => {
         button.addEventListener('click', handleButtonClick);
     });
+    
+    // Add event listener to refresh button
+    elements.refreshBtn?.addEventListener('click', handleRefresh);
     
     // Keyboard support
     document.addEventListener('keydown', handleKeyboardInput);
@@ -47,6 +54,25 @@ function handleButtonClick(e) {
     }
 }
 
+// Handle refresh button click
+function handleRefresh() {
+    // Cycle through app names
+    currentAppNameIndex = (currentAppNameIndex + 1) % appNames.length;
+    const newName = appNames[currentAppNameIndex];
+    
+    // Update app name
+    elements.title.textContent = newName;
+    
+    // Add refresh effect
+    elements.refreshBtn.textContent = 'Refreshed!';
+    setTimeout(() => {
+        elements.refreshBtn.textContent = 'Refresh';
+    }, 1000);
+    
+    // Clear calculator
+    clearAll();
+}
+
 // Append value to expression
 function appendValue(value) {
     if (shouldResetOnNextInput) {
@@ -63,9 +89,12 @@ function appendValue(value) {
         currentExpression += value;
     }
     
-    elements.expression.textContent = currentExpression;
-    
-    // Live preview
+    elements.expression.textContent = formatExpression(currentExpression);
+    calculatePreview();
+}
+
+// Calculate preview
+function calculatePreview() {
     try {
         const result = evaluateExpression(currentExpression);
         if (!isNaN(result) && isFinite(result)) {
@@ -73,11 +102,11 @@ function appendValue(value) {
             elements.result.textContent = currentResult;
         }
     } catch (error) {
-        // Ignore preview errors
+        elements.result.textContent = '0';
     }
 }
 
-// Calculate result
+// Calculate final result
 function calculate() {
     if (!currentExpression) return;
     
@@ -94,9 +123,9 @@ function calculate() {
         shouldResetOnNextInput = true;
         
         // Success effect
-        elements.result.style.color = '#34c759';
+        elements.result.classList.add('success');
         setTimeout(() => {
-            elements.result.style.color = '';
+            elements.result.classList.remove('success');
         }, 800);
         
     } catch (error) {
@@ -159,22 +188,8 @@ function clearEntry() {
 function deleteChar() {
     if (currentExpression.length > 0) {
         currentExpression = currentExpression.slice(0, -1);
-        elements.expression.textContent = currentExpression;
-        
-        // Recalculate preview
-        if (currentExpression) {
-            try {
-                const result = evaluateExpression(currentExpression);
-                currentResult = formatNumber(result);
-                elements.result.textContent = currentResult;
-            } catch (error) {
-                elements.result.textContent = '0';
-                currentResult = '0';
-            }
-        } else {
-            elements.result.textContent = '0';
-            currentResult = '0';
-        }
+        elements.expression.textContent = formatExpression(currentExpression);
+        calculatePreview();
     }
 }
 
@@ -208,6 +223,21 @@ function formatNumber(num) {
     return parseFloat(num.toFixed(decimals)).toString();
 }
 
+// Format expression for display
+function formatExpression(expr) {
+    return expr
+        .replace(/\*/g, '×')
+        .replace(/\//g, '÷')
+        .replace(/-/g, '−')
+        .replace(/Math\.sqrt\(/g, '√(')
+        .replace(/Math\.sin\(/g, 'sin(')
+        .replace(/Math\.cos\(/g, 'cos(')
+        .replace(/Math\.tan\(/g, 'tan(')
+        .replace(/Math\.log10\(/g, 'log(')
+        .replace(/Math\.log\(/g, 'ln(')
+        .replace(/\*\*/g, '^');
+}
+
 // Keyboard support
 function handleKeyboardInput(event) {
     const key = event.key;
@@ -236,6 +266,13 @@ function handleKeyboardInput(event) {
     else if (key === 'p') appendValue('π');
     else if (key === 'e') appendValue('e');
     else if (key === '!') appendValue('!');
+    else if (key === 's') appendValue('sin(');
+    else if (key === 'c') appendValue('cos(');
+    else if (key === 't') appendValue('tan(');
+    else if (key === 'l') appendValue('log(');
+    else if (key === 'n') appendValue('ln(');
+    else if (key === 'r') appendValue('√(');
+    else if (key === '^') appendValue('^');
 }
 
 // Show error
@@ -252,5 +289,5 @@ function showError() {
 // Update display
 function updateDisplay() {
     elements.result.textContent = currentResult;
-    elements.expression.textContent = currentExpression;
+    elements.expression.textContent = formatExpression(currentExpression);
 }
