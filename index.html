@@ -2,29 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pro Calculator</title>
-<link rel="stylesheet" href="style.css" />
-  <link rel="manifest" href="manifest.json" />
-  <link rel="icon" href="/icons/calc16.png" type="image/png" />
-  <link rel="shortcut icon" href="/icons/calc512.png" type="image/png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/calc32.png">
+<link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="/icons/calc16.png" type="image/png">
+    <link rel="shortcut icon" href="/icons/calc512.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/calc32.png">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
     <div class="app-container">
-        <!-- Desktop layout: history left, calculator right -->
+        <!-- History Panel (Left on desktop, top on mobile) -->
         <div class="history-panel" id="history-panel">
             <div class="history-header">
                 <h4>History</h4>
-                <button class="collapse-btn" id="collapse-btn">▼</button>
             </div>
-            <div class="history-content">
-                <ul id="history-list"></ul>
-                <button id="clear-history" class="clear-btn">Clear All</button>
-            </div>
+            <ul id="history-list"></ul>
+            <button id="clear-history" class="clear-btn">Clear All</button>
         </div>
 
+        <!-- Calculator (Right on desktop, bottom on mobile) -->
         <div class="calculator" id="calculator">
             <div class="display-container">
                 <div class="expression" id="expression"></div>
