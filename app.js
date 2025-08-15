@@ -1,46 +1,83 @@
-let deferredPrompt;
+window.addEventListener('load', () => {
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateButton();
+            }
+          });
+        });
 
-const installBtn = document.getElementById('install-btn');
-const refreshBtn = document.getElementById('refresh-btn');
+        // Check for updates daily
+        setInterval(() => reg.update(), 24 * 60 * 60 * 1000);
+      });
+  }
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'flex';
-});
-
-installBtn.addEventListener('click', async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-        installBtn.style.display = 'none';
-    }
-    deferredPrompt = null;
-});
-
-window.addEventListener('appinstalled', () => {
-    installBtn.style.display = 'none';
-});
-
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => {
-                console.log('Service Worker registered');
-                reg.update();
-            })
-            .catch(err => console.error('Service Worker failed:', err));
+  // Show install button
+  if ('BeforeInstallPromptEvent' in window) {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      showInstallButton(e);
     });
+  }
+});
 
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-        refreshBtn.style.display = 'flex';
+function showUpdateButton() {
+  const btn = document.createElement('button');
+  btn.innerHTML = '🔄 Update App';
+  btn.style.cssText = `
+    position: fixed;
+    top: 20px;
+    left: 20px;  /* تغيير من right إلى left */
+    padding: 12px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    cursor: pointer;
+  `;
+
+  btn.onclick = () => {
+    navigator.serviceWorker.getRegistration().then(reg => {
+      if (reg?.waiting) {
+        reg.waiting.postMessage({type: 'SKIP_WAITING'});
+        setTimeout(() => window.location.reload(), 300);
+      }
     });
+  };
+
+  document.body.appendChild(btn);
 }
 
-refreshBtn?.addEventListener('click', () => {
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage('skipWaiting');
-    }
-    refreshBtn.style.display = 'none';
-});
+function showInstallButton(event) {
+  const btn = document.createElement('button');
+  btn.innerHTML = '📱 Install App';
+  btn.style.cssText = `
+    position: fixed;
+    top: 70px;
+    left: 20px;  /* تغيير من right إلى left */
+    padding: 12px 20px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-weight: bold;
+    z-index: 10000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    cursor: pointer;
+  `;
+
+  btn.onclick = () => {
+    event.prompt();
+    btn.remove();
+  };
+
+  document.body.appendChild(btn);
+}
