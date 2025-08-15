@@ -1,4 +1,4 @@
-// مكتبة رياضية آمنة لحساب التعبيرات
+// مكتبة رياضية آمنة
 class MathParser {
     constructor() {
         this.functions = {
@@ -16,7 +16,6 @@ class MathParser {
         };
     }
     
-    // تحويل التعبير إلى مصفوفة من الرموز
     tokenize(expression) {
         const tokens = [];
         let i = 0;
@@ -24,13 +23,11 @@ class MathParser {
         while (i < expression.length) {
             const char = expression[i];
             
-            // تخطي الفراغات
             if (char === ' ') {
                 i++;
                 continue;
             }
             
-            // الأرقام
             if (/[0-9.]/.test(char)) {
                 let num = '';
                 while (i < expression.length && /[0-9.]/.test(expression[i])) {
@@ -41,7 +38,6 @@ class MathParser {
                 continue;
             }
             
-            // الدوال
             if (/[a-zA-Z]/.test(char)) {
                 let func = '';
                 while (i < expression.length && /[a-zA-Z]/.test(expression[i])) {
@@ -49,10 +45,9 @@ class MathParser {
                     i++;
                 }
                 
-                // التحقق من وجود القوس
                 if (expression[i] === '(') {
                     tokens.push({ type: 'function', name: func });
-                    i++; // تخطي القوس المفتوح
+                    i++;
                     continue;
                 } else {
                     i -= func.length;
@@ -66,7 +61,6 @@ class MathParser {
                 }
             }
             
-            // الثوابت
             if (char === 'π' || char === 'e') {
                 tokens.push({ 
                     type: 'number', 
@@ -76,21 +70,18 @@ class MathParser {
                 continue;
             }
             
-            // العوامل
             if (['+', '-', '*', '/', '^'].includes(char)) {
                 tokens.push({ type: 'operator', value: char });
                 i++;
                 continue;
             }
             
-            // الأقواس
             if (char === '(' || char === ')') {
                 tokens.push({ type: 'paren', value: char });
                 i++;
                 continue;
             }
             
-            // العامل !
             if (char === '!') {
                 tokens.push({ type: 'factorial', value: '!' });
                 i++;
@@ -103,7 +94,6 @@ class MathParser {
         return tokens;
     }
     
-    // تحويل التعبير من التنسيق العادي إلى RPN (Reverse Polish Notation)
     toRPN(tokens) {
         const output = [];
         const operators = [];
@@ -161,10 +151,9 @@ class MathParser {
                     }
                     
                     if (operators.length > 0 && operators[operators.length - 1].type === 'paren') {
-                        operators.pop(); // إزالة القوس المفتوح
+                        operators.pop();
                     }
                     
-                    // معالجة الدوال
                     if (operators.length > 0 && operators[operators.length - 1].type === 'function') {
                         output.push(operators.pop());
                     }
@@ -183,7 +172,6 @@ class MathParser {
         return output;
     }
     
-    // حساب قيمة التعبير في تنسيق RPN
     evaluateRPN(rpn) {
         const stack = [];
         
@@ -235,7 +223,6 @@ class MathParser {
         return stack[0];
     }
     
-    // حساب التعبير بشكل آمن
     evaluate(expression) {
         try {
             const tokens = this.tokenize(expression);
@@ -247,7 +234,6 @@ class MathParser {
     }
 }
 
-// تخزين التاريخ
 class HistoryManager {
     constructor(maxItems = 21) {
         this.maxItems = maxItems;
@@ -272,7 +258,6 @@ class HistoryManager {
     }
 }
 
-// واجهة الحاسبة
 class Calculator {
     constructor() {
         this.expression = '';
@@ -296,18 +281,12 @@ class Calculator {
     }
     
     bindEvents() {
-        // أحداث الأزرار
         document.querySelectorAll('.btn').forEach(button => {
             button.addEventListener('click', () => this.handleButton(button));
-            button.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // منع الحركة الزائدة
-            });
         });
         
-        // أحداث لوحة المفاتيح
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
-        // تبديل لوحة التاريخ
         this.elements.toggleHistory?.addEventListener('click', () => {
             const panel = document.querySelector('.history-panel');
             panel.classList.toggle('compact');
@@ -320,7 +299,6 @@ class Calculator {
         const action = button.dataset.action;
         const value = button.dataset.value;
         
-        // تأثير الضغط
         button.classList.add('pressed');
         setTimeout(() => button.classList.remove('pressed'), 100);
         
@@ -388,11 +366,9 @@ class Calculator {
             this.result = formattedResult;
             this.shouldReset = true;
             
-            // تحديث العرض
             this.updateDisplay();
             this.renderHistory();
             
-            // تأثير النجاح
             this.elements.result.classList.add('success');
             setTimeout(() => {
                 this.elements.result.classList.remove('success');
@@ -436,17 +412,14 @@ class Calculator {
             return 'Error';
         }
         
-        // إذا كان العدد صحيحًا
         if (Math.abs(num % 1) < Number.EPSILON) {
             return num.toString();
         }
         
-        // تحديد عدد الأرقام العشرية ديناميكيًا
         const absNum = Math.abs(num);
         let decimals;
         
         if (absNum >= 1e9 || absNum <= 1e-6) {
-            // استخدام الصيغة العلمية للأرقام الكبيرة جدًا أو الصغيرة جدًا
             return num.toExponential(6);
         } else if (absNum >= 1) {
             decimals = 8 - Math.floor(Math.log10(absNum));
@@ -509,20 +482,16 @@ class Calculator {
     handleKeyboard(e) {
         const key = e.key.toLowerCase();
         
-        // منع الافتراضي لبعض المفاتيح
         if (['enter', 'escape', 'backspace'].includes(key)) {
             e.preventDefault();
         }
         
-        // الأرقام
         if (/\d/.test(key)) {
             this.handleValue(key);
         }
-        // العوامل
         else if (key === '+' || key === '-' || key === '*' || key === '/') {
             this.handleValue(key);
         }
-        // مفاتيح خاصة
         else if (key === 'enter' || key === '=') {
             this.calculate();
         }
@@ -538,7 +507,6 @@ class Calculator {
         else if (key === '%') {
             this.handleAction('percentage');
         }
-        // ثوابت ووظائف
         else if (key === 'p') {
             this.handleValue('π');
         }
@@ -576,12 +544,9 @@ class Calculator {
 document.addEventListener('DOMContentLoaded', () => {
     window.calculator = new Calculator();
     
-    // عرض أزرار التثبيت إذا كان ذلك ممكنًا
-    if ('serviceWorker' in navigator) {
-        setTimeout(() => {
-            document.querySelectorAll('.control-btn').forEach(btn => {
-                btn.classList.add('show');
-            });
-        }, 1000);
-    }
+    setTimeout(() => {
+        document.querySelectorAll('.control-btn').forEach(btn => {
+            btn.classList.add('show');
+        });
+    }, 1000);
 });
