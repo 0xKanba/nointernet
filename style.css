@@ -1,424 +1,387 @@
-/* Reset & Base */
+/* إعادة تعيين عام */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 :root {
-  /* Light Theme */
-  --light-bg: #f5f5f7;
-  --light-display-bg: #f0f0f0;
-  --light-btn-bg: #e0e0e0;
-  --light-number-btn: #e0e0e0;
-  --light-function-btn: #a0a0a0;
-  --light-text: #000;
-  --light-border: #d0d0d0;
-
-  /* Dark Theme */
-  --dark-bg: #1b1b23;
-  --dark-display-bg: #1c1c1e;
-  --dark-btn-bg: #1c1c1e;
-  --dark-number-btn: #3a3a3c;
-  --dark-function-btn: #636366;
-  --dark-text: #ffffff;
-  --dark-border: #38383a;
-
-  /* Common */
-  --operator-btn: #ff9500;
-  --equals-btn: #ff2d55;
-  --clear-btn: #ff3b30;
-  --sci-btn: #007aff;
-  --error-color: #ff3b30;
-  --success-color: #34c759;
+    /* ألوان الوضع الداكن (الافتراضي) */
+    --bg-primary: #000000;
+    --bg-secondary: #1c1c1e;
+    --bg-tertiary: #2c2c2e;
+    --text-primary: #ffffff;
+    --text-secondary: #a5a5a7;
+    --text-tertiary: #6e6e71;
+    
+    /* ألوان الأزرار */
+    --btn-number: #3a3a3c;
+    --btn-function: #636366;
+    --btn-operator: #ff9500;
+    --btn-equals: #ff2d55;
+    --btn-clear: #ff3b30;
+    
+    /* ألوان التاريخ */
+    --history-bg: #1c1c1e;
+    --history-border: #38383a;
 }
 
-body {
-  background: var(--dark-bg);
-  color: var(--dark-text);
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  margin: 0;
-  transition: background 0.3s ease;
-  overflow: hidden;
-}
-
+/* الوضع الفاتح (يتم تفعيله تلقائياً حسب إعدادات النظام) */
 @media (prefers-color-scheme: light) {
-  body {
-    background: var(--light-bg);
-    color: var(--light-text);
-  }
+    :root {
+        --bg-primary: #f5f5f7;
+        --bg-secondary: #ffffff;
+        --bg-tertiary: #f2f2f7;
+        --text-primary: #000000;
+        --text-secondary: #6e6e71;
+        --text-tertiary: #a5a5a7;
+        
+        --btn-number: #e0e0e0;
+        --btn-function: #a0a0a0;
+        --btn-operator: #ff9500;
+        --btn-equals: #ff2d55;
+        --btn-clear: #ff3b30;
+        
+        --history-bg: #ffffff;
+        --history-border: #d0d0d0;
+    }
 }
 
-/* Controls */
+/* تنسيقات عامة */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    display: flex;
+    flex-direction: column;
+}
+
+/* أزرار التحكم */
 .controls {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 100;
-  display: flex;
-  gap: 8px;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
 }
 
 .control-btn {
-  padding: 8px 16px;
-  background: rgba(0, 0, 0, 0.6);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: 0.2s;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  display: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    opacity: 0;
 }
 
-@media (prefers-color-scheme: light) {
-  .control-btn {
-    background: rgba(0, 0, 0, 0.1);
-    color: #333;
-  }
+.control-btn.show {
+    opacity: 1;
 }
 
 .control-btn:hover {
-  transform: translateY(-1px);
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
 }
 
-#install-btn {
-  background: rgba(0, 122, 255, 0.8);
-}
-
-#refresh-btn {
-  background: rgba(52, 199, 89, 0.8);
-}
-
-/* App Layout */
+/* الهيكل الرئيسي */
 .app-container {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-/* Calculator */
+/* حاسبة */
 .calculator {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 15px;
-  max-width: 500px;
-  margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    height: 80vh;
+    max-height: 80vh;
 }
 
 .display-container {
-  background: var(--dark-display-bg);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: right;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--dark-border);
-}
-
-@media (prefers-color-scheme: light) {
-  .display-container {
-    background: var(--light-display-bg);
-    border-color: var(--light-border);
-  }
+    background-color: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .expression {
-  height: 20px;
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 8px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@media (prefers-color-scheme: light) {
-  .expression {
-    color: rgba(0, 0, 0, 0.6);
-  }
+    font-size: 18px;
+    color: var(--text-secondary);
+    text-align: right;
+    height: 24px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-bottom: 4px;
 }
 
 .result {
-  font-size: 56px;
-  font-weight: 300;
-  min-height: 64px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.2;
+    font-size: 48px;
+    font-weight: 300;
+    text-align: right;
+    min-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-/* Buttons Grid */
+/* شبكة الأزرار */
 .buttons-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 8px 0;
 }
 
 .btn {
-  aspect-ratio: 1;
-  border: none;
-  border-radius: 50%;
-  font-size: 24px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.1s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--dark-btn-bg);
-  color: var(--dark-text);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  outline: none;
-}
-
-.btn::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.btn:active::after {
-  opacity: 1;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: none;
+    font-size: 22px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--btn-number);
+    color: var(--text-primary);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
 .btn:active {
-  transform: scale(0.9);
+    transform: scale(0.95);
 }
 
-@media (prefers-color-scheme: light) {
-  .btn {
-    background: var(--light-btn-bg);
-    color: var(--light-text);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-}
-
+/* أنواع الأزرار */
 .number-btn {
-  background: var(--dark-number-btn);
-  color: var(--dark-text);
-}
-
-@media (prefers-color-scheme: light) {
-  .number-btn {
-    background: var(--light-number-btn);
-  }
+    background-color: var(--btn-number);
+    color: var(--text-primary);
 }
 
 .function-btn {
-  background: var(--dark-function-btn);
-  color: var(--dark-text);
-}
-
-@media (prefers-color-scheme: light) {
-  .function-btn {
-    background: var(--light-function-btn);
-  }
+    background-color: var(--btn-function);
+    color: var(--text-primary);
 }
 
 .operator-btn {
-  background: var(--operator-btn);
-  color: white;
-  font-weight: 600;
+    background-color: var(--btn-operator);
+    color: white;
+    font-weight: 600;
 }
 
 .equals-btn {
-  background: var(--equals-btn);
-  color: white;
-  font-weight: 600;
-  font-size: 28px;
+    background-color: var(--btn-equals);
+    color: white;
+    font-weight: 600;
+    font-size: 28px;
 }
 
 .clear-btn {
-  background: var(--clear-btn);
-  color: white;
-  font-weight: 600;
-}
-
-.sci-btn {
-  background: var(--sci-btn);
-  color: white;
-  font-size: 16px;
+    background-color: var(--btn-clear);
+    color: white;
+    font-weight: 600;
 }
 
 .zero-btn {
-  grid-column: span 2;
-  border-radius: 30px;
-  font-size: 24px;
+    grid-column: span 2;
+    border-radius: 30px;
+    font-size: 22px;
 }
 
-/* Log Panel */
-.log-container {
-  width: 0;
-  overflow: hidden;
-  transition: width 0.3s ease, opacity 0.3s ease;
-  border-left: 1px solid var(--dark-border);
-  background: var(--dark-bg);
-  display: flex;
-  flex-direction: column;
-}
-
-.log-container.active {
-  width: 300px;
-  opacity: 1;
-}
-
-@media (prefers-color-scheme: light) {
-  .log-container {
-    border-left-color: var(--light-border);
-    background: var(--light-bg);
-  }
-}
-
-.log-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--dark-border);
-}
-
-@media (prefers-color-scheme: light) {
-  .log-header {
-    border-bottom-color: var(--light-border);
-  }
-
-.log-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.toggle-log-btn {
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: var(--dark-text);
-  cursor: pointer;
-}
-
-.log-list {
-  list-style: none;
-  padding: 10px;
-  flex: 1;
-  overflow-y: auto;
-  font-size: 14px;
-  color: var(--dark-text);
-}
-
-.log-item {
-  padding: 8px 0;
-  border-bottom: 1px solid var(--dark-border);
-  word-break: break-all;
-}
-
-@media (prefers-color-scheme: light) {
-  .log-item {
-    border-bottom-color: var(--light-border);
-    color: var(--light-text);
-  }
-}
-
-/* Mobile: Stack layout, collapsible log */
-@media (max-width: 768px) {
-  .app-container {
-    flex-direction: column;
-  }
-
-  .calculator {
-    height: 80vh;
-    max-width: 100%;
-  }
-
-  .log-container {
-    width: 100%;
-    height: 0;
-    opacity: 0;
-  }
-
-  .log-container.active {
+/* لوحة التاريخ */
+.history-panel {
+    background-color: var(--history-bg);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
     height: 20vh;
-    opacity: 1;
-  }
+    max-height: 20vh;
+    overflow: hidden;
+    transition: height 0.3s ease, max-height 0.3s ease;
+}
 
-  .result {
-    font-size: 48px;
-  }
+.history-panel.compact {
+    height: 40px;
+    max-height: 40px;
+}
 
-  .btn {
-    font-size: 20px;
-  }
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--history-border);
+}
 
-  .zero-btn {
-    font-size: 20px;
-  }
+.history-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
 
-  .sci-btn {
+.toggle-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
     font-size: 14px;
-  }
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Desktop: Side-by-side */
-@media (min-width: 769px) {
-  .app-container {
-    flex-direction: row;
-  }
-
-  .calculator {
-    height: 100vh;
-    padding: 20px;
-  }
-
-  .log-container {
-    width: 300px;
-    opacity: 1;
-  }
-
-  .toggle-log-btn {
-    display: none;
-  }
+.history-content {
+    height: calc(100% - 40px);
+    overflow-y: auto;
+    padding: 8px 0;
 }
 
-/* Animations */
-@keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(0.9); }
-  100% { transform: scale(1); }
+.history-list {
+    list-style: none;
 }
 
+.history-item {
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--history-border);
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-item-expression {
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 70%;
+}
+
+.history-item-result {
+    font-weight: 600;
+    color: var(--btn-equals);
+    max-width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* التنسيقات للشاشات الكبيرة */
+@media (min-width: 768px) {
+    .app-container {
+        flex-direction: row;
+    }
+    
+    .calculator {
+        height: 100vh;
+        max-height: 100vh;
+        width: 60%;
+        padding: 24px;
+    }
+    
+    .history-panel {
+        height: 100vh;
+        max-height: 100vh;
+        width: 40%;
+        border-top-left-radius: 0;
+        border-top-right-radius: 24px;
+        border-bottom-right-radius: 24px;
+    }
+    
+    .history-panel.compact {
+        height: 100vh;
+        max-height: 100vh;
+    }
+    
+    .toggle-btn {
+        display: none;
+    }
+    
+    .history-content {
+        height: calc(100% - 52px);
+    }
+    
+    .display-container {
+        padding: 32px 28px;
+    }
+    
+    .expression {
+        font-size: 20px;
+    }
+    
+    .result {
+        font-size: 64px;
+    }
+    
+    .buttons-grid {
+        gap: 16px;
+    }
+    
+    .btn {
+        font-size: 26px;
+    }
+    
+    .zero-btn {
+        font-size: 26px;
+    }
+}
+
+/* تأثيرات */
 .btn.pressed {
-  animation: pop 0.15s ease;
+    transform: scale(0.95);
 }
 
 .error {
-  color: var(--error-color) !important;
-  animation: shake 0.5s ease-in-out;
+    color: #ff3b30;
+    animation: shake 0.5s;
 }
 
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
 }
 
 .success {
-  color: var(--success-color);
-  animation: fade 0.6s ease-out;
+    animation: pulse 0.6s;
 }
 
-@keyframes fade {
-  0% { opacity: 0.6; }
-  100% { opacity: 1; }
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
 }
