@@ -1,335 +1,424 @@
-/* Reset & Base Styles */
+/* Reset & Base */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 :root {
-    /* Light Theme */
-    --light-bg: linear-gradient(135deg, #a1c4fd, #c2e9fb);
-    --light-display-bg: rgba(255, 255, 255, 0.25);
-    --light-btn-bg: rgba(255, 255, 255, 0.35);
-    --light-number-btn: rgba(255, 255, 255, 0.4);
-    --light-function-btn: rgba(255, 255, 255, 0.45);
-    --light-text: #333;
-    --light-expression: rgba(0, 0, 0, 0.7);
-    
-    /* Dark Theme */
-    --dark-bg: linear-gradient(135deg, #232526, #414345);
-    --dark-display-bg: rgba(255, 255, 255, 0.15);
-    --dark-btn-bg: rgba(255, 255, 255, 0.1);
-    --dark-number-btn: rgba(255, 255, 255, 0.15);
-    --dark-function-btn: rgba(255, 255, 255, 0.2);
-    --dark-text: #fff;
-    --dark-expression: rgba(255, 255, 255, 0.8);
-    
-    /* Common Colors */
-    --operator-btn: rgba(255, 159, 10, 0.8);
-    --equals-btn: rgba(255, 69, 58, 0.9);
-    --clear-btn: rgba(255, 59, 48, 0.8);
-    --sci-btn: rgba(0, 122, 255, 0.4);
-    --error-color: #ff3b30;
-    --success-color: #34c759;
+  /* Light Theme */
+  --light-bg: #f5f5f7;
+  --light-display-bg: #f0f0f0;
+  --light-btn-bg: #e0e0e0;
+  --light-number-btn: #e0e0e0;
+  --light-function-btn: #a0a0a0;
+  --light-text: #000;
+  --light-border: #d0d0d0;
+
+  /* Dark Theme */
+  --dark-bg: #1b1b23;
+  --dark-display-bg: #1c1c1e;
+  --dark-btn-bg: #1c1c1e;
+  --dark-number-btn: #3a3a3c;
+  --dark-function-btn: #636366;
+  --dark-text: #ffffff;
+  --dark-border: #38383a;
+
+  /* Common */
+  --operator-btn: #ff9500;
+  --equals-btn: #ff2d55;
+  --clear-btn: #ff3b30;
+  --sci-btn: #007aff;
+  --error-color: #ff3b30;
+  --success-color: #34c759;
 }
 
 body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    color: var(--dark-text);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    background: var(--dark-bg);
-    transition: background 0.5s ease;
+  background: var(--dark-bg);
+  color: var(--dark-text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  margin: 0;
+  transition: background 0.3s ease;
+  overflow: hidden;
 }
 
 @media (prefers-color-scheme: light) {
-    body {
-        background: var(--light-bg);
-        color: var(--light-text);
-    }
+  body {
+    background: var(--light-bg);
+    color: var(--light-text);
+  }
 }
 
 /* Controls */
 .controls {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    display: flex;
-    gap: 10px;
-    z-index: 100;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  display: flex;
+  gap: 8px;
 }
 
 .control-btn {
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
-    border-radius: 30px;
-    color: white;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    backdrop-filter: blur(10px);
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    display: none;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: 0.2s;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  display: none;
+}
+
+@media (prefers-color-scheme: light) {
+  .control-btn {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+  }
 }
 
 .control-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 #install-btn {
-    background: rgba(0, 122, 255, 0.7);
+  background: rgba(0, 122, 255, 0.8);
 }
 
 #refresh-btn {
-    background: rgba(52, 199, 89, 0.7);
+  background: rgba(52, 199, 89, 0.8);
+}
+
+/* App Layout */
+.app-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex: 1;
 }
 
 /* Calculator */
 .calculator {
-    width: 95%;
-    max-width: 500px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
-/* Display */
 .display-container {
-    background: var(--dark-display-bg);
-    border-radius: 30px;
-    padding: 25px;
-    text-align: right;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    margin-bottom: 10px;
+  background: var(--dark-display-bg);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: right;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--dark-border);
 }
 
 @media (prefers-color-scheme: light) {
-    .display-container {
-        background: var(--light-display-bg);
-    }
+  .display-container {
+    background: var(--light-display-bg);
+    border-color: var(--light-border);
+  }
 }
 
 .expression {
-    height: 30px;
-    font-size: 20px;
-    color: var(--dark-expression);
-    margin-bottom: 10px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  height: 20px;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (prefers-color-scheme: light) {
-    .expression {
-        color: var(--light-expression);
-    }
+  .expression {
+    color: rgba(0, 0, 0, 0.6);
+  }
 }
 
 .result {
-    width: 100%;
-    font-size: 48px;
-    font-weight: 300;
-    text-align: right;
-    min-height: 60px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 56px;
+  font-weight: 300;
+  min-height: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 /* Buttons Grid */
 .buttons-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
 
 .btn {
-    border: none;
-    border-radius: 50%;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    aspect-ratio: 1/1;
-    font-size: 24px;
-    background: var(--dark-btn-bg);
-    color: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-@media (prefers-color-scheme: light) {
-    .btn {
-        background: var(--light-btn-bg);
-        color: var(--light-text);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--dark-btn-bg);
+  color: var(--dark-text);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  outline: none;
 }
 
 .btn::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s;
 }
 
-.btn:hover::after {
-    opacity: 1;
+.btn:active::after {
+  opacity: 1;
 }
 
 .btn:active {
-    transform: scale(0.92);
-}
-
-/* Button Types */
-.number-btn {
-    background: var(--dark-number-btn);
+  transform: scale(0.9);
 }
 
 @media (prefers-color-scheme: light) {
-    .number-btn {
-        background: var(--light-number-btn);
-    }
+  .btn {
+    background: var(--light-btn-bg);
+    color: var(--light-text);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.number-btn {
+  background: var(--dark-number-btn);
+  color: var(--dark-text);
+}
+
+@media (prefers-color-scheme: light) {
+  .number-btn {
+    background: var(--light-number-btn);
+  }
 }
 
 .function-btn {
-    background: var(--dark-function-btn);
+  background: var(--dark-function-btn);
+  color: var(--dark-text);
 }
 
 @media (prefers-color-scheme: light) {
-    .function-btn {
-        background: var(--light-function-btn);
-    }
+  .function-btn {
+    background: var(--light-function-btn);
+  }
 }
 
 .operator-btn {
-    background: var(--operator-btn);
-    font-weight: 600;
-    color: white;
+  background: var(--operator-btn);
+  color: white;
+  font-weight: 600;
 }
 
 .equals-btn {
-    background: var(--equals-btn);
-    font-weight: 600;
-    font-size: 32px;
-    color: white;
+  background: var(--equals-btn);
+  color: white;
+  font-weight: 600;
+  font-size: 28px;
 }
 
 .clear-btn {
-    background: var(--clear-btn);
-    color: white;
-    font-weight: 600;
+  background: var(--clear-btn);
+  color: white;
+  font-weight: 600;
 }
 
 .sci-btn {
-    background: var(--sci-btn);
-    font-size: 18px;
-    color: white;
+  background: var(--sci-btn);
+  color: white;
+  font-size: 16px;
 }
 
 .zero-btn {
-    grid-column: span 2;
-    border-radius: 30px;
-    aspect-ratio: unset;
+  grid-column: span 2;
+  border-radius: 30px;
+  font-size: 24px;
 }
 
-/* Responsive Design - Mobile */
+/* Log Panel */
+.log-container {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  border-left: 1px solid var(--dark-border);
+  background: var(--dark-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.log-container.active {
+  width: 300px;
+  opacity: 1;
+}
+
+@media (prefers-color-scheme: light) {
+  .log-container {
+    border-left-color: var(--light-border);
+    background: var(--light-bg);
+  }
+}
+
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--dark-border);
+}
+
+@media (prefers-color-scheme: light) {
+  .log-header {
+    border-bottom-color: var(--light-border);
+  }
+
+.log-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.toggle-log-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--dark-text);
+  cursor: pointer;
+}
+
+.log-list {
+  list-style: none;
+  padding: 10px;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 14px;
+  color: var(--dark-text);
+}
+
+.log-item {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--dark-border);
+  word-break: break-all;
+}
+
+@media (prefers-color-scheme: light) {
+  .log-item {
+    border-bottom-color: var(--light-border);
+    color: var(--light-text);
+  }
+}
+
+/* Mobile: Stack layout, collapsible log */
 @media (max-width: 768px) {
-    .calculator {
-        width: 80%;
-        padding: 10px;
-        max-width: 100%;
-    }
-    
-    .display-container {
-        padding: 20px;
-        border-radius: 25px;
-    }
-    
-    .result {
-        font-size: 40px;
-    }
-    
-    .buttons-grid {
-        gap: 10px;
-    }
-    
-    .btn {
-        font-size: 20px;
-    }
-    
-    .sci-btn {
-        font-size: 16px;
-    }
-    
-    .controls {
-        top: 10px;
-        left: 10px;
-    }
-    
-    .control-btn {
-        padding: 8px 16px;
-        font-size: 14px;
-    }
+  .app-container {
+    flex-direction: column;
+  }
+
+  .calculator {
+    height: 80vh;
+    max-width: 100%;
+  }
+
+  .log-container {
+    width: 100%;
+    height: 0;
+    opacity: 0;
+  }
+
+  .log-container.active {
+    height: 20vh;
+    opacity: 1;
+  }
+
+  .result {
+    font-size: 48px;
+  }
+
+  .btn {
+    font-size: 20px;
+  }
+
+  .zero-btn {
+    font-size: 20px;
+  }
+
+  .sci-btn {
+    font-size: 14px;
+  }
 }
 
-/* Responsive Design - Computer */
+/* Desktop: Side-by-side */
 @media (min-width: 769px) {
-    .calculator {
-        max-width: 500px;
-        padding: 20px;
-    }
-    
-    .buttons-grid {
-        gap: 15px;
-    }
+  .app-container {
+    flex-direction: row;
+  }
+
+  .calculator {
+    height: 100vh;
+    padding: 20px;
+  }
+
+  .log-container {
+    width: 300px;
+    opacity: 1;
+  }
+
+  .toggle-log-btn {
+    display: none;
+  }
 }
 
-/* Animation for button press */
-@keyframes buttonPress {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.92); }
-    100% { transform: scale(1); }
+/* Animations */
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
 
 .btn.pressed {
-    animation: buttonPress 0.2s ease;
+  animation: pop 0.15s ease;
 }
 
-/* Error states */
 .error {
-    color: var(--error-color) !important;
-    animation: shake 0.5s ease-in-out;
+  color: var(--error-color) !important;
+  animation: shake 0.5s ease-in-out;
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    75% { transform: translateX(5px); }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .success {
-    color: var(--success-color) !important;
+  color: var(--success-color);
+  animation: fade 0.6s ease-out;
+}
+
+@keyframes fade {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
 }
