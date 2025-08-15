@@ -6,27 +6,67 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+:root {
+    /* Light Theme */
+    --light-bg: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+    --light-display-bg: rgba(255, 255, 255, 0.25);
+    --light-btn-bg: rgba(255, 255, 255, 0.35);
+    --light-number-btn: rgba(255, 255, 255, 0.4);
+    --light-function-btn: rgba(255, 255, 255, 0.45);
+    --light-text: #333;
+    --light-expression: rgba(0, 0, 0, 0.7);
+    
+    /* Dark Theme */
+    --dark-bg: linear-gradient(135deg, #232526, #414345);
+    --dark-display-bg: rgba(255, 255, 255, 0.15);
+    --dark-btn-bg: rgba(255, 255, 255, 0.1);
+    --dark-number-btn: rgba(255, 255, 255, 0.15);
+    --dark-function-btn: rgba(255, 255, 255, 0.2);
+    --dark-text: #fff;
+    --dark-expression: rgba(255, 255, 255, 0.8);
+    
+    /* Common Colors */
+    --operator-btn: rgba(255, 159, 10, 0.8);
+    --equals-btn: rgba(255, 69, 58, 0.9);
+    --clear-btn: rgba(255, 59, 48, 0.8);
+    --sci-btn: rgba(0, 122, 255, 0.4);
+    --error-color: #ff3b30;
+    --success-color: #34c759;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
-    color: #fff;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    color: var(--dark-text);
     height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    transition: background 0.5s ease;
     padding: 0;
     margin: 0;
+    background: var(--dark-bg);
+    transition: background 0.5s ease;
 }
 
-/* Install Button */
-.install-btn {
+@media (prefers-color-scheme: light) {
+    body {
+        background: var(--light-bg);
+        color: var(--light-text);
+    }
+}
+
+/* Controls */
+.controls {
     position: absolute;
     top: 15px;
     left: 15px;
+    display: flex;
+    gap: 10px;
     z-index: 100;
+}
+
+.control-btn {
     padding: 10px 20px;
     background: rgba(255, 255, 255, 0.2);
     border: none;
@@ -41,16 +81,24 @@ body {
     display: none;
 }
 
-.install-btn:hover {
+.control-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-2px);
 }
 
+#install-btn {
+    background: rgba(0, 122, 255, 0.7);
+}
+
+#refresh-btn {
+    background: rgba(52, 199, 89, 0.7);
+}
+
 /* Calculator */
 .calculator {
-    width: 100%;
+    width: 95%;
     max-width: 500px;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -58,7 +106,7 @@ body {
 
 /* Display */
 .display-container {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--dark-display-bg);
     border-radius: 30px;
     padding: 25px;
     text-align: right;
@@ -68,21 +116,32 @@ body {
     margin-bottom: 10px;
 }
 
+@media (prefers-color-scheme: light) {
+    .display-container {
+        background: var(--light-display-bg);
+    }
+}
+
 .expression {
     height: 30px;
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--dark-expression);
     margin-bottom: 10px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
+@media (prefers-color-scheme: light) {
+    .expression {
+        color: var(--light-expression);
+    }
+}
+
 .result {
     width: 100%;
     font-size: 48px;
     font-weight: 300;
-    color: white;
     text-align: right;
     min-height: 60px;
     overflow: hidden;
@@ -93,7 +152,7 @@ body {
 .buttons-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
+    gap: 12px;
 }
 
 .btn {
@@ -109,11 +168,19 @@ body {
     justify-content: center;
     aspect-ratio: 1/1;
     font-size: 24px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--dark-btn-bg);
     color: white;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     backdrop-filter: blur(5px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (prefers-color-scheme: light) {
+    .btn {
+        background: var(--light-btn-bg);
+        color: var(--light-text);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
 }
 
 .btn::after {
@@ -138,34 +205,48 @@ body {
 
 /* Button Types */
 .number-btn {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--dark-number-btn);
+}
+
+@media (prefers-color-scheme: light) {
+    .number-btn {
+        background: var(--light-number-btn);
+    }
 }
 
 .function-btn {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--dark-function-btn);
+}
+
+@media (prefers-color-scheme: light) {
+    .function-btn {
+        background: var(--light-function-btn);
+    }
 }
 
 .operator-btn {
-    background: rgba(255, 159, 10, 0.7);
+    background: var(--operator-btn);
     font-weight: 600;
+    color: white;
 }
 
 .equals-btn {
-    background: rgba(255, 69, 58, 0.8);
+    background: var(--equals-btn);
     font-weight: 600;
     font-size: 32px;
-    grid-column: span 2;
-    border-radius: 30px;
-    aspect-ratio: unset;
+    color: white;
 }
 
 .clear-btn {
-    background: rgba(255, 59, 48, 0.7);
+    background: var(--clear-btn);
+    color: white;
+    font-weight: 600;
 }
 
 .sci-btn {
-    background: rgba(0, 122, 255, 0.3);
+    background: var(--sci-btn);
     font-size: 18px;
+    color: white;
 }
 
 .zero-btn {
@@ -174,10 +255,10 @@ body {
     aspect-ratio: unset;
 }
 
-/* Responsive Design */
-@media (max-width: 600px) {
+/* Responsive Design - Mobile */
+@media (max-width: 768px) {
     .calculator {
-        width: 100%;
+        width: 80%;
         padding: 10px;
         max-width: 100%;
     }
@@ -202,72 +283,27 @@ body {
     .sci-btn {
         font-size: 16px;
     }
-}
-
-@media (max-width: 400px) {
-    .result {
-        font-size: 36px;
+    
+    .controls {
+        top: 10px;
+        left: 10px;
     }
     
-    .btn {
-        font-size: 18px;
-    }
-    
-    .sci-btn {
+    .control-btn {
+        padding: 8px 16px;
         font-size: 14px;
     }
 }
 
-/* Light theme */
-@media (prefers-color-scheme: light) {
-    body {
-        background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+/* Responsive Design - Computer */
+@media (min-width: 769px) {
+    .calculator {
+        max-width: 500px;
+        padding: 20px;
     }
     
-    .display-container {
-        background: rgba(255, 255, 255, 0.25);
-    }
-    
-    .expression {
-        color: rgba(0, 0, 0, 0.7);
-    }
-    
-    .result {
-        color: #333;
-    }
-    
-    .btn {
-        background: rgba(255, 255, 255, 0.35);
-        color: #333;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    
-    .number-btn {
-        background: rgba(255, 255, 255, 0.4);
-    }
-    
-    .function-btn {
-        background: rgba(255, 255, 255, 0.45);
-    }
-    
-    .operator-btn {
-        background: rgba(255, 159, 10, 0.8);
-        color: white;
-    }
-    
-    .equals-btn {
-        background: rgba(255, 69, 58, 0.9);
-        color: white;
-    }
-    
-    .clear-btn {
-        background: rgba(255, 59, 48, 0.8);
-        color: white;
-    }
-    
-    .sci-btn {
-        background: rgba(0, 122, 255, 0.4);
-        color: white;
+    .buttons-grid {
+        gap: 15px;
     }
 }
 
@@ -284,7 +320,7 @@ body {
 
 /* Error states */
 .error {
-    color: #ff3b30 !important;
+    color: var(--error-color) !important;
     animation: shake 0.5s ease-in-out;
 }
 
@@ -292,4 +328,8 @@ body {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
+}
+
+.success {
+    color: var(--success-color) !important;
 }
