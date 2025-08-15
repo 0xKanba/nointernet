@@ -5,59 +5,60 @@ const historyList = document.getElementById('history-list');
 const clearHistoryBtn = document.getElementById('clear-history');
 const collapseBtn = document.getElementById('collapse-btn');
 const historyPanel = document.getElementById('history-panel');
+const buttonsGrid = document.querySelector('.buttons-grid');
 
 // Calculator state
 let currentInput = '0';
 let expression = '';
 let history = JSON.parse(localStorage.getItem('calcHistory')) || [];
 let isHistoryCollapsed = false;
+let lastCalculationTime = 0;
+const MIN_CALCULATION_INTERVAL = 50; // ms
 
 // Initialize calculator
 function initCalculator() {
     updateDisplay();
     renderHistory();
     
-    // Add event listeners to buttons
-    document.querySelectorAll('.number-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            appendNumber(btn.dataset.val);
-            animateButton(btn);
-        });
-    });
-    
-    document.querySelectorAll('.operator-btn, .function-btn[data-op]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            appendOperator(btn.dataset.op);
-            animateButton(btn);
-        });
-    });
-    
-    // Action buttons
-    document.querySelectorAll('[data-action]').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const action = btn.dataset.action;
-            if (action === 'clearAll') clearAll();
-            else if (action === 'clearEntry') clearEntry();
-            else if (action === 'delete') deleteChar();
-            else if (action === 'calculate') calculate();
-            animateButton(btn);
-        });
-    });
-    
-    // History buttons
+    // Add event listeners
     clearHistoryBtn.addEventListener('click', clearHistory);
     collapseBtn.addEventListener('click', toggleHistoryCollapse);
     
     // Keyboard support
     document.addEventListener('keydown', handleKeyPress);
+    
+    // Setup button event delegation
+    setupButtonDelegation();
 }
 
-// Button animation
-function animateButton(btn) {
-    btn.classList.add('active');
-    setTimeout(() => {
-        btn.classList.remove('active');
-    }, 100);
+// Setup button event delegation for optimal performance
+function setupButtonDelegation() {
+    buttonsGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn');
+        if (!btn) return;
+        
+        // Performance optimization: prevent rapid successive calculations
+        if (btn.dataset.action === 'calculate') {
+            const now = Date.now();
+            if (now - lastCalculationTime < MIN_CALCULATION_INTERVAL) return;
+            lastCalculationTime = now;
+        }
+        
+        // Handle button actions
+        if (btn.dataset.val !== undefined) {
+            appendNumber(btn.dataset.val);
+        } else if (btn.dataset.op !== undefined) {
+            appendOperator(btn.dataset.op);
+        } else if (btn.dataset.action === 'clearAll') {
+            clearAll();
+        } else if (btn.dataset.action === 'clearEntry') {
+            clearEntry();
+        } else if (btn.dataset.action === 'delete') {
+            deleteChar();
+        } else if (btn.dataset.action === 'calculate') {
+            calculate();
+        }
+    });
 }
 
 // Update display
@@ -270,44 +271,32 @@ function toggleHistoryCollapse() {
 
 // Handle keyboard input
 function handleKeyPress(e) {
-    const button = getButtonForKey(e.key);
-    if (button) {
-        animateButton(button);
-        button.click();
+    if (e.key >= '0' && e.key <= '9') {
+        appendNumber(e.key);
+    } else if (e.key === '.') {
+        appendNumber('.');
+    } else if (['+', '-', '*', '/'].includes(e.key)) {
+        appendOperator(e.key);
+    } else if (e.key === 'Enter' || e.key === '=') {
+        calculate();
+    } else if (e.key === 'Escape') {
+        clearAll();
+    } else if (e.key === 'Backspace') {
+        deleteChar();
+    } else if (e.key === '%') {
+        handlePercentage();
     }
 }
 
-// Get button for keyboard key
-function getButtonForKey(key) {
-    const keyMap = {
-        '0': '[data-val="0"]',
-        '1': '[data-val="1"]',
-        '2': '[data-val="2"]',
-        '3': '[data-val="3"]',
-        '4': '[data-val="4"]',
-        '5': '[data-val="5"]',
-        '6': '[data-val="6"]',
-        '7': '[data-val="7"]',
-        '8': '[data-val="8"]',
-        '9': '[data-val="9"]',
-        '.': '[data-val="."]',
-        '+': '[data-op="+"]',
-        '-': '[data-op="-"]',
-        '*': '[data-op="*"]',
-        '/': '[data-op="/"]',
-        '%': '[data-op="%"]',
-        'Enter': '[data-action="calculate"]',
-        '=': '[data-action="calculate"]',
-        'Escape': '[data-action="clearAll"]',
-        'Backspace': '[data-action="delete"]'
-    };
-    
-    const selector = keyMap[key];
-    return selector ? document.querySelector(selector) : null;
-}
-
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', initCalculator);
+document.addEventListener('DOMContentLoaded', () => {
+    initCalculator();
+    
+    // For mobile: show history panel when there's history
+    if (history.length > 0) {
+        historyPanel.style.display = 'block';
+    }
+});
 
 // PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
