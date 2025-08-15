@@ -15,7 +15,43 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
-    <div class="calculator-container">
+    <div class="main-container">
+        <div class="calculator-container">
+            <div class="calculator" id="calculator">
+                <div class="display-container">
+                    <div class="expression" id="expression"></div>
+                    <input type="text" id="result" readonly placeholder="0">
+                </div>
+
+                <div class="buttons-grid">
+                    <button class="btn function-btn" data-action="clearAll">AC</button>
+                    <button class="btn function-btn" data-action="clearEntry">CE</button>
+                    <button class="btn function-btn" data-op="%">%</button>
+                    <button class="btn operator-btn" data-op="/">÷</button>
+
+                    <button class="btn number-btn" data-val="7">7</button>
+                    <button class="btn number-btn" data-val="8">8</button>
+                    <button class="btn number-btn" data-val="9">9</button>
+                    <button class="btn operator-btn" data-op="*">×</button>
+
+                    <button class="btn number-btn" data-val="4">4</button>
+                    <button class="btn number-btn" data-val="5">5</button>
+                    <button class="btn number-btn" data-val="6">6</button>
+                    <button class="btn operator-btn" data-op="-">−</button>
+
+                    <button class="btn number-btn" data-val="1">1</button>
+                    <button class="btn number-btn" data-val="2">2</button>
+                    <button class="btn number-btn" data-val="3">3</button>
+                    <button class="btn operator-btn plus-btn" data-op="+">+</button>
+
+                    <button class="btn number-btn zero-btn" data-val="0">0</button>
+                    <button class="btn function-btn" data-val=".">.</button>
+                    <button class="btn function-btn" data-action="delete">⌫</button>
+                    <button class="btn equals-btn" data-action="calculate">=</button>
+                </div>
+            </div>
+        </div>
+        
         <div class="history-panel" id="history-panel">
             <div class="history-header">
                 <h4>History</h4>
@@ -24,40 +60,6 @@
             <div class="history-content">
                 <ul id="history-list"></ul>
                 <button id="clear-history" class="clear-btn">Clear All</button>
-            </div>
-        </div>
-
-        <div class="calculator" id="calculator">
-            <div class="display-container">
-                <div class="expression" id="expression"></div>
-                <input type="text" id="result" readonly placeholder="0">
-            </div>
-
-            <div class="buttons-grid">
-                <button class="btn function-btn" data-action="clearAll">AC</button>
-                <button class="btn function-btn" data-action="clearEntry">CE</button>
-                <button class="btn function-btn" data-op="%">%</button>
-                <button class="btn operator-btn" data-op="/">÷</button>
-
-                <button class="btn number-btn" data-val="7">7</button>
-                <button class="btn number-btn" data-val="8">8</button>
-                <button class="btn number-btn" data-val="9">9</button>
-                <button class="btn operator-btn" data-op="*">×</button>
-
-                <button class="btn number-btn" data-val="4">4</button>
-                <button class="btn number-btn" data-val="5">5</button>
-                <button class="btn number-btn" data-val="6">6</button>
-                <button class="btn operator-btn" data-op="-">−</button>
-
-                <button class="btn number-btn" data-val="1">1</button>
-                <button class="btn number-btn" data-val="2">2</button>
-                <button class="btn number-btn" data-val="3">3</button>
-                <button class="btn operator-btn" data-op="+">+</button>
-
-                <button class="btn number-btn zero-btn" data-val="0">0</button>
-                <button class="btn function-btn" data-val=".">.</button>
-                <button class="btn function-btn" data-action="delete">⌫</button>
-                <button class="btn equals-btn" data-action="calculate">=</button>
             </div>
         </div>
     </div>
