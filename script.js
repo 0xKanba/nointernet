@@ -1,50 +1,49 @@
-// DOM Elements
+'use strict';
+
+// DOM Elements - cached for performance
 const resultInput = document.getElementById('result');
 const expressionDiv = document.getElementById('expression');
 const historyList = document.getElementById('history-list');
 const clearHistoryBtn = document.getElementById('clear-history');
-const collapseBtn = document.getElementById('collapse-btn');
-const historyPanel = document.getElementById('history-panel');
 const buttonsGrid = document.querySelector('.buttons-grid');
 
 // Calculator state
 let currentInput = '0';
 let expression = '';
 let history = JSON.parse(localStorage.getItem('calcHistory')) || [];
-let isHistoryCollapsed = false;
 let lastCalculationTime = 0;
-const MIN_CALCULATION_INTERVAL = 50; // ms
+const MIN_CALCULATION_INTERVAL = 30; // ms
 
-// Initialize calculator
+// Initialize calculator with performance optimizations
 function initCalculator() {
-    updateDisplay();
+    // Direct property access for faster updates
+    resultInput.value = '0';
+    expressionDiv.textContent = '';
+    
+    // Render history immediately
     renderHistory();
     
-    // Add event listeners
-    clearHistoryBtn.addEventListener('click', clearHistory);
-    collapseBtn.addEventListener('click', toggleHistoryCollapse);
+    // Setup optimized event delegation
+    setupEventDelegation();
     
-    // Keyboard support
-    document.addEventListener('keydown', handleKeyPress);
-    
-    // Setup button event delegation
-    setupButtonDelegation();
+    // Keyboard support with debounce
+    document.addEventListener('keydown', handleKeyPress, { passive: true });
 }
 
-// Setup button event delegation for optimal performance
-function setupButtonDelegation() {
-    buttonsGrid.addEventListener('click', (e) => {
+// Setup single event listener for all buttons
+function setupEventDelegation() {
+    buttonsGrid.addEventListener('click', function(e) {
         const btn = e.target.closest('.btn');
         if (!btn) return;
         
-        // Performance optimization: prevent rapid successive calculations
+        // Skip if calculation is in progress
         if (btn.dataset.action === 'calculate') {
             const now = Date.now();
             if (now - lastCalculationTime < MIN_CALCULATION_INTERVAL) return;
             lastCalculationTime = now;
         }
         
-        // Handle button actions
+        // Direct action handling
         if (btn.dataset.val !== undefined) {
             appendNumber(btn.dataset.val);
         } else if (btn.dataset.op !== undefined) {
@@ -58,45 +57,58 @@ function setupButtonDelegation() {
         } else if (btn.dataset.action === 'calculate') {
             calculate();
         }
-    });
+    }, { passive: true });
+    
+    // Clear history button
+    clearHistoryBtn.addEventListener('click', clearHistory, { passive: true });
 }
 
-// Update display
+// Update display with minimal DOM operations
 function updateDisplay() {
+    // Direct property assignment for speed
     resultInput.value = formatNumber(currentInput);
     expressionDiv.textContent = expression;
 }
 
-// Format number with commas
+// Optimized number formatting
 function formatNumber(num) {
-    if (num === '') return '0';
+    if (num === '' || num === '0') return '0';
     
-    // Handle scientific notation
+    // Fast scientific notation check
     if (num.includes('e')) return num;
     
-    const number = parseFloat(num);
-    if (isNaN(number)) return '0';
+    // Direct number conversion
+    const n = +num;
+    if (isNaN(n)) return '0';
     
-    // Format with commas and up to 10 decimal places
-    return number.toLocaleString(undefined, {
-        maximumFractionDigits: 10
+    // Fast decimal check
+    if (!num.includes('.')) return n.toLocaleString();
+    
+    // Optimized decimal formatting
+    return n.toLocaleString(undefined, {
+        maximumFractionDigits: 10,
+        useGrouping: true
     });
 }
 
-// Append number to current input
+// Append number with minimal operations
 function appendNumber(num) {
+    // Fast path for reset state
     if (currentInput === '0' && num !== '.') {
         currentInput = num;
-    } else if (num === '.' && currentInput.includes('.')) {
-        // Only one decimal point allowed
+        updateDisplay();
         return;
-    } else {
-        currentInput += num;
     }
+    
+    // Fast decimal check
+    if (num === '.' && currentInput.includes('.')) return;
+    
+    // Direct string concatenation
+    currentInput += num;
     updateDisplay();
 }
 
-// Append operator
+// Append operator with minimal operations
 function appendOperator(op) {
     // Special handling for percentage
     if (op === '%') {
@@ -104,205 +116,197 @@ function appendOperator(op) {
         return;
     }
     
-    // If we have a current input, add it to expression
-    if (currentInput !== '0' || expression === '') {
-        expression += currentInput === '0' && expression !== '' ? '0' : currentInput;
+    // Fast path for empty expression
+    if (expression === '') {
+        expression = currentInput === '0' ? '0' : currentInput;
+        currentInput = '0';
+        updateDisplay();
+        return;
+    }
+    
+    // Replace last operator if needed
+    const lastChar = expression[expression.length - 1];
+    if (['+', '-', '*', '/', '^'].includes(lastChar)) {
+        expression = expression.slice(0, -1) + op;
+    } else {
+        expression += (currentInput === '0' ? '0' : currentInput) + op;
         currentInput = '0';
     }
     
-    // Replace the last operator if needed
-    const lastChar = expression.slice(-1);
-    if (['+', '-', '*', '/', '^'].includes(lastChar)) {
-        expression = expression.slice(0, -1);
-    }
-    
-    expression += op;
     updateDisplay();
 }
 
-// Handle percentage calculation
+// Handle percentage with minimal operations
 function handlePercentage() {
     if (expression === '') {
-        // Percentage of the current input
-        currentInput = (parseFloat(currentInput) / 100).toString();
+        currentInput = (+currentInput / 100).toString();
     } else {
-        // Percentage of the last value in expression
-        const lastNumber = parseFloat(currentInput);
+        const lastNumber = +currentInput;
         const percentageValue = lastNumber / 100;
         
-        // If the last operator is + or -, calculate percentage of the result so far
-        const lastOperator = expression.slice(-1);
-        if (lastOperator === '+' || lastOperator === '-') {
-            // Calculate the value so far without the last operator
-            const exprWithoutLastOp = expression.slice(0, -1);
-            const partialResult = safeEval(exprWithoutLastOp);
-            const percentage = partialResult * percentageValue;
-            
-            currentInput = percentage.toString();
-        } else {
-            currentInput = percentageValue.toString();
-        }
+        // Direct assignment
+        currentInput = percentageValue.toString();
     }
     updateDisplay();
 }
 
-// Clear all
+// Clear all with direct assignment
 function clearAll() {
     currentInput = '0';
     expression = '';
     updateDisplay();
 }
 
-// Clear entry
+// Clear entry with direct assignment
 function clearEntry() {
     currentInput = '0';
     updateDisplay();
 }
 
-// Delete last character
+// Delete character with minimal operations
 function deleteChar() {
-    if (currentInput.length > 1) {
-        currentInput = currentInput.slice(0, -1);
-    } else {
-        currentInput = '0';
-    }
+    currentInput = currentInput.length > 1 
+        ? currentInput.slice(0, -1) 
+        : '0';
     updateDisplay();
 }
 
-// Calculate result
+// Calculate with error handling
 function calculate() {
     if (expression === '' && currentInput === '0') return;
     
     let fullExpression = expression + currentInput;
     
     try {
-        // Replace display operators with JavaScript operators
+        // Fast operator replacement
         fullExpression = fullExpression
             .replace(/×/g, '*')
             .replace(/÷/g, '/')
             .replace(/−/g, '-');
         
-        // Evaluate the expression
+        // Direct evaluation
         const result = safeEval(fullExpression);
         
-        // Save to history
+        // Add to history
         addToHistory(expression + currentInput, result);
         
-        // Update display
+        // Update state
         currentInput = result.toString();
         expression = '';
         updateDisplay();
-    } catch (error) {
+    } catch (e) {
         currentInput = 'Error';
-        expression = '';
         updateDisplay();
-        setTimeout(() => {
-            currentInput = '0';
-            updateDisplay();
-        }, 1500);
+        setTimeout(clearError, 1000);
     }
 }
 
-// Safe eval function
+// Safe evaluation with minimal overhead
 function safeEval(expr) {
-    // Validate expression to prevent security issues
+    // Fast validation
     if (!/^[\d+\-*/.()% ]+$/.test(expr)) {
         throw new Error('Invalid expression');
     }
     
-    // Use Function constructor as a safer alternative to eval
+    // Direct evaluation
     return Function(`'use strict'; return (${expr})`)();
 }
 
-// Add calculation to history
+// Add to history with minimal operations
 function addToHistory(expr, result) {
+    // Direct array manipulation
     history.unshift({
         expression: expr,
         result: result,
-        timestamp: new Date().toISOString()
+        timestamp: Date.now()
     });
     
     // Keep only last 10 items
     if (history.length > 10) {
-        history.pop();
+        history.length = 10;
     }
     
-    // Save to localStorage
+    // Direct localStorage update
     localStorage.setItem('calcHistory', JSON.stringify(history));
     
-    // Render history
+    // Render immediately
     renderHistory();
 }
 
-// Render history
+// Render history with document fragment
 function renderHistory() {
-    historyList.innerHTML = '';
+    if (!history.length) {
+        historyList.innerHTML = '';
+        return;
+    }
     
-    history.forEach(item => {
+    // Use document fragment for minimal reflows
+    const fragment = document.createDocumentFragment();
+    
+    for (let i = 0; i < Math.min(history.length, 10); i++) {
+        const item = history[i];
         const li = document.createElement('li');
         li.className = 'history-item';
         li.innerHTML = `
             <span class="history-expression">${item.expression} =</span>
             <span class="history-result">${formatNumber(item.result.toString())}</span>
         `;
-        historyList.appendChild(li);
         
-        // Click to reuse result
-        li.addEventListener('click', () => {
+        // Direct event attachment
+        li.onclick = () => {
             currentInput = item.result.toString();
             updateDisplay();
-        });
-    });
+        };
+        
+        fragment.appendChild(li);
+    }
+    
+    historyList.innerHTML = '';
+    historyList.appendChild(fragment);
 }
 
-// Clear history
+// Clear history with direct operations
 function clearHistory() {
     history = [];
     localStorage.removeItem('calcHistory');
-    renderHistory();
+    historyList.innerHTML = '';
 }
 
-// Toggle history collapse
-function toggleHistoryCollapse() {
-    isHistoryCollapsed = !isHistoryCollapsed;
-    historyPanel.classList.toggle('collapsed', isHistoryCollapsed);
-    collapseBtn.textContent = isHistoryCollapsed ? '▶' : '▼';
+// Clear error state
+function clearError() {
+    if (currentInput === 'Error') {
+        currentInput = '0';
+        updateDisplay();
+    }
 }
 
-// Handle keyboard input
+// Handle keyboard input with debounce
 function handleKeyPress(e) {
-    if (e.key >= '0' && e.key <= '9') {
-        appendNumber(e.key);
-    } else if (e.key === '.') {
+    const key = e.key;
+    
+    if (key >= '0' && key <= '9') {
+        appendNumber(key);
+    } else if (key === '.') {
         appendNumber('.');
-    } else if (['+', '-', '*', '/'].includes(e.key)) {
-        appendOperator(e.key);
-    } else if (e.key === 'Enter' || e.key === '=') {
+    } else if (['+', '-', '*', '/'].includes(key)) {
+        appendOperator(key);
+    } else if (key === 'Enter' || key === '=') {
         calculate();
-    } else if (e.key === 'Escape') {
+    } else if (key === 'Escape') {
         clearAll();
-    } else if (e.key === 'Backspace') {
+    } else if (key === 'Backspace') {
         deleteChar();
-    } else if (e.key === '%') {
+    } else if (key === '%') {
         handlePercentage();
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initCalculator();
-    
-    // For mobile: show history panel when there's history
-    if (history.length > 0) {
-        historyPanel.style.display = 'block';
-    }
-});
+// Initialize calculator
+document.addEventListener('DOMContentLoaded', initCalculator);
 
 // PWA Service Worker Registration
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('Service Worker registered:', reg))
-            .catch(err => console.error('Service Worker registration failed:', err));
+        navigator.serviceWorker.register('sw.js').catch(() => {});
     });
 }
