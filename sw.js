@@ -9,6 +9,10 @@ const urlsToCache = [
   'manifest.json',
   'icons/calc192.png',
   'icons/calc512.png'
+  'icons/calc16.png'
+  'icons/calc32.png'
+  'icons/apple-touch-icon.png'
+  'icons/favicon.ico'
 ];
 
 // Install service worker
