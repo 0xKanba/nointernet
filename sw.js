@@ -1,9 +1,9 @@
-const CACHE_NAME = 'sphere-calculator-v3';
+const CACHE_NAME = 'sphere-calculator-v5';
 const FILES_TO_CACHE = [
   './',
   'index.html',
   'style.css',
-  'script.js',
+  'math.js',
   'app.js',
   'manifest.json',
   'icons/calc192.png',
