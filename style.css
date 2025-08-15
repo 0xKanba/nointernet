@@ -4,12 +4,11 @@
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
 }
 
 :root {
-    /* ألوان الوضع الداكن (الافتراضي) */
-    --bg-primary: #1b1b23;
+    /* ألوان الوضع الداكن */
+    --bg-primary: #000000;
     --bg-secondary: #1c1c1e;
     --bg-tertiary: #2c2c2e;
     --text-primary: #ffffff;
@@ -31,7 +30,6 @@
     --history-border: #38383a;
 }
 
-/* الوضع الفاتح */
 @media (prefers-color-scheme: light) {
     :root {
         --bg-primary: #f5f5f7;
@@ -68,12 +66,13 @@ body {
     flex-direction: column;
 }
 
-/* أزرار التحكم */
 .controls {
     position: absolute;
     top: 12px;
     left: 12px;
     z-index: 100;
+    display: flex;
+    gap: 8px;
 }
 
 .control-btn {
@@ -102,7 +101,6 @@ body {
     transform: scale(1.1);
 }
 
-/* الهيكل الرئيسي */
 .app-container {
     display: flex;
     height: calc(100% - 48px);
@@ -183,7 +181,6 @@ body {
     font-weight: 600;
 }
 
-/* الحاسبة */
 .calculator {
     flex: 1;
     display: flex;
