@@ -1,394 +1,577 @@
-// Pro Calculator 3D - Ultra-Fast Stock App Version
-let currentExpression = '';
-let currentResult = '0';
-let history = [];
-let lastResult = 0;
-let shouldResetOnNextInput = false;
-let isCalculating = false;
-
-// DOM Elements
-const elements = {
-    result: document.getElementById('result'),
-    expression: document.getElementById('expression'),
-    historyList: document.getElementById('history-list'),
-    historyPanel: document.getElementById('history-panel'),
-    scientificButtons: document.getElementById('scientific-buttons'),
-    calculator: document.getElementById('calculator'),
-    collapseBtn: document.getElementById('collapse-btn'),
-    clearHistoryBtn: document.getElementById('clear-history'),
-    historyTitle: document.getElementById('history-title')
-};
-
-// Initialize calculator
-document.addEventListener('DOMContentLoaded', function() {
-    loadHistory();
-    updateDisplay();
-    setupEventListeners();
-});
-
-function setupEventListeners() {
-    // History panel controls
-    if (elements.collapseBtn) {
-        elements.collapseBtn.addEventListener('click', toggleHistory);
+class Calculator {
+    constructor() {
+        this.currentInput = '0';
+        this.previousInput = '';
+        this.operator = '';
+        this.waitingForOperand = false;
+        this.history = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
+        this.isScientificMode = false;
+        this.lastResult = 0;
+        
+        this.initializeElements();
+        this.bindEvents();
+        this.loadHistory();
+        this.updateDisplay();
+        
+        // Performance optimizations
+        this.debounceTimeout = null;
+        this.animationFrame = null;
     }
-    if (elements.clearHistoryBtn) {
-        elements.clearHistoryBtn.addEventListener('click', clearHistory);
-    }
-    
-    // Keyboard support
-    document.addEventListener('keydown', handleKeyboardInput);
-    
-    // Touch events for better mobile experience
-    setupTouchEvents();
-}
 
-// Touch events for mobile
-function setupTouchEvents() {
-    document.querySelectorAll('.btn').forEach(button => {
-        button.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            this.classList.add('pressed');
+    initializeElements() {
+        // Display elements
+        this.display = document.getElementById('result');
+        this.expressionDisplay = document.querySelector('.expression');
+        
+        // History elements
+        this.historyList = document.getElementById('history-list');
+        this.historyPanel = document.querySelector('.history-panel');
+        this.collapseBtn = document.querySelector('.collapse-btn');
+        this.clearHistoryBtn = document.querySelector('.clear-btn');
+        
+        // Button containers
+        this.buttonsGrid = document.querySelector('.buttons-grid');
+        this.modeButtons = document.querySelector('.mode-buttons');
+        
+        // Create buttons dynamically for better performance
+        this.createButtons();
+    }
+
+    createButtons() {
+        // Clear existing buttons
+        this.buttonsGrid.innerHTML = '';
+        this.modeButtons.innerHTML = '';
+        
+        // Main calculator buttons layout
+        const buttonLayout = [
+            { text: 'AC', class: 'clear-btn', action: 'clear' },
+            { text: '±', class: 'function-btn', action: 'toggleSign' },
+            { text: '%', class: 'function-btn', action: 'percent' },
+            { text: '÷', class: 'operator-btn', action: 'operator', value: '/' },
             
-            // Add ripple effect on touch
-            const rect = this.getBoundingClientRect();
-            const x = e.touches[0].clientX - rect.left;
-            const y = e.touches[0].clientY - rect.top;
+            { text: '7', class: 'number-btn', action: 'number', value: '7' },
+            { text: '8', class: 'number-btn', action: 'number', value: '8' },
+            { text: '9', class: 'number-btn', action: 'number', value: '9' },
+            { text: '×', class: 'operator-btn', action: 'operator', value: '*' },
             
-            const ripple = document.createElement('span');
-            ripple.classList.add('ripple');
-            ripple.style.left = `${x}px`;
-            ripple.style.top = `${y}px`;
+            { text: '4', class: 'number-btn', action: 'number', value: '4' },
+            { text: '5', class: 'number-btn', action: 'number', value: '5' },
+            { text: '6', class: 'number-btn', action: 'number', value: '6' },
+            { text: '−', class: 'operator-btn', action: 'operator', value: '-' },
             
-            this.appendChild(ripple);
+            { text: '1', class: 'number-btn', action: 'number', value: '1' },
+            { text: '2', class: 'number-btn', action: 'number', value: '2' },
+            { text: '3', class: 'number-btn', action: 'number', value: '3' },
+            { text: '+', class: 'operator-btn', action: 'operator', value: '+' },
             
-            setTimeout(() => {
-                if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
-            }, 600);
+            { text: '0', class: 'number-btn', action: 'number', value: '0' },
+            { text: '.', class: 'number-btn', action: 'decimal' },
+            { text: '⌫', class: 'function-btn', action: 'backspace' },
+            { text: '=', class: 'equals-btn', action: 'equals' }
+        ];
+        
+        // Scientific mode buttons
+        const scientificButtons = [
+            { text: 'sin', action: 'scientific', value: 'sin' },
+            { text: 'cos', action: 'scientific', value: 'cos' },
+            { text: 'tan', action: 'scientific', value: 'tan' },
+            { text: 'ln', action: 'scientific', value: 'ln' },
+            { text: 'log', action: 'scientific', value: 'log' },
+            { text: '√', action: 'scientific', value: 'sqrt' },
+            { text: 'x²', action: 'scientific', value: 'square' },
+            { text: 'xʸ', action: 'scientific', value: 'power' },
+            { text: '1/x', action: 'scientific', value: 'reciprocal' },
+            { text: 'π', action: 'scientific', value: 'pi' },
+            { text: 'e', action: 'scientific', value: 'e' },
+            { text: '!', action: 'scientific', value: 'factorial' },
+            { text: '(', action: 'scientific', value: '(' },
+            { text: ')', action: 'scientific', value: ')' },
+            { text: 'C', action: 'toggleMode' },
+            { text: 'Sci', action: 'toggleMode' }
+        ];
+        
+        // Create main buttons with optimized event handling
+        buttonLayout.forEach(btn => {
+            const button = this.createButton(btn);
+            this.buttonsGrid.appendChild(button);
         });
         
-        button.addEventListener('touchend', function() {
-            this.classList.remove('pressed');
+        // Create scientific buttons
+        scientificButtons.forEach(btn => {
+            const button = this.createScientificButton(btn);
+            this.modeButtons.appendChild(button);
         });
+    }
+
+    createButton(config) {
+        const button = document.createElement('button');
+        button.className = `btn ${config.class}`;
+        button.textContent = config.text;
+        button.dataset.action = config.action;
+        if (config.value) button.dataset.value = config.value;
         
-        button.addEventListener('touchcancel', function() {
-            this.classList.remove('pressed');
-        });
-    });
-}
-
-// Calculator functions
-function appendValue(value) {
-    if (shouldResetOnNextInput) {
-        clearAll();
-        shouldResetOnNextInput = false;
+        // Optimized event listeners
+        button.addEventListener('click', this.handleButtonClick.bind(this), { passive: true });
+        button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+        
+        return button;
     }
-    
-    // Handle constants
-    if (value === 'π') value = Math.PI.toString();
-    else if (value === 'e') value = Math.E.toString();
-    
-    currentExpression += value;
-    updateExpression();
-}
 
-function appendOperator(operator) {
-    if (shouldResetOnNextInput) {
-        currentExpression = currentResult;
-        shouldResetOnNextInput = false;
+    createScientificButton(config) {
+        const button = document.createElement('button');
+        button.className = 'sci-btn';
+        button.textContent = config.text;
+        button.dataset.action = config.action;
+        if (config.value) button.dataset.value = config.value;
+        
+        button.addEventListener('click', this.handleButtonClick.bind(this), { passive: true });
+        button.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+        
+        return button;
     }
-    
-    // Prevent consecutive operators
-    const lastChar = currentExpression.slice(-1);
-    if (['+', '-', '*', '/', '^'].includes(lastChar)) {
-        currentExpression = currentExpression.slice(0, -1);
-    }
-    
-    currentExpression += operator;
-    updateExpression();
-}
 
-function appendFunction(func) {
-    if (shouldResetOnNextInput) {
-        clearAll();
-        shouldResetOnNextInput = false;
-    }
-    
-    currentExpression += func;
-    updateExpression();
-}
-
-function calculate() {
-    if (!currentExpression || isCalculating) return;
-    
-    try {
-        isCalculating = true;
-        if (elements.calculator) {
-            elements.calculator.classList.add('calculating');
+    bindEvents() {
+        // Keyboard support with optimized handling
+        document.addEventListener('keydown', this.handleKeyboard.bind(this), { passive: false });
+        
+        // History panel events
+        if (this.collapseBtn) {
+            this.collapseBtn.addEventListener('click', this.toggleHistory.bind(this), { passive: true });
         }
         
-        // Fast calculation with minimal overhead
+        if (this.clearHistoryBtn) {
+            this.clearHistoryBtn.addEventListener('click', this.clearHistory.bind(this), { passive: true });
+        }
+        
+        // History item clicks
+        if (this.historyList) {
+            this.historyList.addEventListener('click', this.handleHistoryClick.bind(this), { passive: true });
+        }
+        
+        // Prevent context menu on long press for mobile
+        document.addEventListener('contextmenu', (e) => {
+            if (e.target.classList.contains('btn') || e.target.classList.contains('sci-btn')) {
+                e.preventDefault();
+            }
+        });
+        
+        // Performance optimization: prevent scrolling on calculator area
+        document.addEventListener('touchmove', (e) => {
+            if (e.target.closest('.calculator')) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    }
+
+    handleButtonClick(event) {
+        event.preventDefault();
+        const button = event.target;
+        
+        // Visual feedback with optimized animation
+        this.animateButton(button);
+        
+        const action = button.dataset.action;
+        const value = button.dataset.value;
+        
+        // Use requestAnimationFrame for smooth updates
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+        }
+        
+        this.animationFrame = requestAnimationFrame(() => {
+            this.performAction(action, value);
+        });
+    }
+
+    handleTouchStart(event) {
+        const button = event.target;
+        button.style.transform = 'scale(0.95)';
+        
         setTimeout(() => {
-            const result = evaluateExpression(currentExpression);
-            
-            if (isNaN(result) || !isFinite(result)) {
-                showError();
-                return;
-            }
-            
-            addToHistory({
-                expression: currentExpression,
-                result: result,
-                timestamp: new Date().toLocaleString()
-            });
-            
-            currentResult = formatNumber(result);
-            if (elements.result) {
-                elements.result.value = currentResult;
-            }
-            lastResult = result;
-            shouldResetOnNextInput = true;
-            
-        }, 0); // Immediate execution
+            button.style.transform = '';
+        }, 150);
+    }
+
+    animateButton(button) {
+        button.classList.add('pressed');
+        setTimeout(() => {
+            button.classList.remove('pressed');
+        }, 150);
+    }
+
+    performAction(action, value) {
+        switch (action) {
+            case 'number':
+                this.inputNumber(value);
+                break;
+            case 'operator':
+                this.inputOperator(value);
+                break;
+            case 'decimal':
+                this.inputDecimal();
+                break;
+            case 'equals':
+                this.calculate();
+                break;
+            case 'clear':
+                this.clear();
+                break;
+            case 'backspace':
+                this.backspace();
+                break;
+            case 'toggleSign':
+                this.toggleSign();
+                break;
+            case 'percent':
+                this.percent();
+                break;
+            case 'scientific':
+                this.scientificFunction(value);
+                break;
+            case 'toggleMode':
+                this.toggleScientificMode();
+                break;
+        }
         
-    } catch (error) {
-        showError();
-    } finally {
-        isCalculating = false;
-        if (elements.calculator) {
-            elements.calculator.classList.remove('calculating');
+        this.updateDisplay();
+    }
+
+    inputNumber(num) {
+        if (this.waitingForOperand) {
+            this.currentInput = num;
+            this.waitingForOperand = false;
+        } else {
+            this.currentInput = this.currentInput === '0' ? num : this.currentInput + num;
+        }
+        
+        // Limit input length for performance
+        if (this.currentInput.length > 12) {
+            this.currentInput = this.currentInput.slice(0, 12);
         }
     }
-}
 
-function evaluateExpression(expr) {
-    // Optimized expression cleaning
-    let cleanExpr = expr
-        .replace(/×/g, '*')
-        .replace(/÷/g, '/')
-        .replace(/−/g, '-')
-        .replace(/√\(/g, 'Math.sqrt(')
-        .replace(/sin\(/g, 'Math.sin(')
-        .replace(/cos\(/g, 'Math.cos(')
-        .replace(/tan\(/g, 'Math.tan(')
-        .replace(/log\(/g, 'Math.log10(')
-        .replace(/\^/g, '**');
-    
-    // Direct evaluation (optimized for speed)
-    try {
-        return Function('"use strict"; return (' + cleanExpr + ')')();
-    } catch (e) {
-        throw new Error('Invalid expression');
+    inputOperator(nextOperator) {
+        const inputValue = parseFloat(this.currentInput);
+
+        if (this.previousInput === '') {
+            this.previousInput = inputValue;
+        } else if (this.operator) {
+            const result = this.performCalculation();
+            
+            this.currentInput = `${parseFloat(result.toFixed(10))}`;
+            this.previousInput = result;
+        }
+
+        this.waitingForOperand = true;
+        this.operator = nextOperator;
     }
-}
 
-// Utility functions
-function clearAll() {
-    currentExpression = '';
-    currentResult = '0';
-    updateDisplay();
-}
-
-function clearEntry() {
-    if (elements.result) {
-        elements.result.value = '0';
+    inputDecimal() {
+        if (this.waitingForOperand) {
+            this.currentInput = '0.';
+            this.waitingForOperand = false;
+        } else if (this.currentInput.indexOf('.') === -1) {
+            this.currentInput += '.';
+        }
     }
-}
 
-function deleteChar() {
-    if (currentExpression.length > 0) {
-        currentExpression = currentExpression.slice(0, -1);
-        updateExpression();
+    calculate() {
+        if (this.operator && this.previousInput !== '' && !this.waitingForOperand) {
+            const result = this.performCalculation();
+            const expression = `${this.previousInput} ${this.getOperatorSymbol(this.operator)} ${this.currentInput} = ${result}`;
+            
+            this.addToHistory(expression);
+            this.currentInput = `${parseFloat(result.toFixed(10))}`;
+            this.lastResult = result;
+            this.previousInput = '';
+            this.operator = '';
+            this.waitingForOperand = true;
+        }
     }
-}
 
-function percentage() {
-    if (currentResult !== '0' && elements.result) {
-        const result = parseFloat(currentResult) / 100;
-        elements.result.value = formatNumber(result);
-        currentResult = result.toString();
-        shouldResetOnNextInput = true;
+    performCalculation() {
+        const prev = parseFloat(this.previousInput);
+        const current = parseFloat(this.currentInput);
+
+        switch (this.operator) {
+            case '+':
+                return prev + current;
+            case '-':
+                return prev - current;
+            case '*':
+                return prev * current;
+            case '/':
+                return current !== 0 ? prev / current : 0;
+            default:
+                return current;
+        }
     }
-}
 
-// History management
-function addToHistory(item) {
-    history.unshift(item);
-    if (history.length > 50) history = history.slice(0, 50);
-    updateHistoryDisplay();
-    saveHistory();
-}
+    scientificFunction(func) {
+        const num = parseFloat(this.currentInput);
+        let result;
 
-function updateHistoryDisplay() {
-    if (!elements.historyList) return;
-    
-    elements.historyList.innerHTML = '';
-    history.forEach(item => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 12px; opacity: 0.7;">${formatExpression(item.expression)}</span>
-                <strong>${formatNumber(item.result)}</strong>
-            </div>
-            <div style="font-size: 10px; opacity: 0.5; margin-top: 2px;">${item.timestamp}</div>
-        `;
-        li.addEventListener('click', () => {
-            if (elements.result) {
-                elements.result.value = formatNumber(item.result);
+        switch (func) {
+            case 'sin':
+                result = Math.sin(num * Math.PI / 180);
+                break;
+            case 'cos':
+                result = Math.cos(num * Math.PI / 180);
+                break;
+            case 'tan':
+                result = Math.tan(num * Math.PI / 180);
+                break;
+            case 'ln':
+                result = Math.log(num);
+                break;
+            case 'log':
+                result = Math.log10(num);
+                break;
+            case 'sqrt':
+                result = Math.sqrt(num);
+                break;
+            case 'square':
+                result = num * num;
+                break;
+            case 'reciprocal':
+                result = num !== 0 ? 1 / num : 0;
+                break;
+            case 'factorial':
+                result = this.factorial(Math.floor(num));
+                break;
+            case 'pi':
+                result = Math.PI;
+                break;
+            case 'e':
+                result = Math.E;
+                break;
+            default:
+                result = num;
+        }
+
+        const expression = `${func}(${num}) = ${result}`;
+        this.addToHistory(expression);
+        this.currentInput = `${parseFloat(result.toFixed(10))}`;
+        this.lastResult = result;
+        this.waitingForOperand = true;
+    }
+
+    factorial(n) {
+        if (n < 0 || n > 170) return 0; // Prevent overflow
+        if (n <= 1) return 1;
+        let result = 1;
+        for (let i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+    clear() {
+        this.currentInput = '0';
+        this.previousInput = '';
+        this.operator = '';
+        this.waitingForOperand = false;
+    }
+
+    backspace() {
+        if (this.currentInput.length > 1) {
+            this.currentInput = this.currentInput.slice(0, -1);
+        } else {
+            this.currentInput = '0';
+        }
+    }
+
+    toggleSign() {
+        if (this.currentInput !== '0') {
+            this.currentInput = this.currentInput.charAt(0) === '-' 
+                ? this.currentInput.slice(1) 
+                : '-' + this.currentInput;
+        }
+    }
+
+    percent() {
+        const num = parseFloat(this.currentInput);
+        this.currentInput = `${num / 100}`;
+        this.waitingForOperand = true;
+    }
+
+    toggleScientificMode() {
+        this.isScientificMode = !this.isScientificMode;
+        this.modeButtons.style.display = this.isScientificMode ? 'grid' : 'none';
+    }
+
+    updateDisplay() {
+        // Optimized display update with debouncing
+        if (this.debounceTimeout) {
+            clearTimeout(this.debounceTimeout);
+        }
+        
+        this.debounceTimeout = setTimeout(() => {
+            if (this.display) {
+                this.display.value = this.formatNumber(this.currentInput);
             }
-            currentResult = item.result.toString();
-            shouldResetOnNextInput = true;
-        });
-        elements.historyList.appendChild(li);
-    });
-}
-
-function clearHistory() {
-    history = [];
-    if (elements.historyList) {
-        elements.historyList.innerHTML = '';
+            
+            if (this.expressionDisplay) {
+                const expression = this.operator 
+                    ? `${this.formatNumber(this.previousInput)} ${this.getOperatorSymbol(this.operator)}`
+                    : '';
+                this.expressionDisplay.textContent = expression;
+            }
+        }, 10);
     }
-    localStorage.removeItem('calc-history');
-}
 
-function loadHistory() {
-    const savedHistory = localStorage.getItem('calc-history');
-    if (savedHistory) {
+    formatNumber(num) {
+        const number = parseFloat(num);
+        if (isNaN(number)) return '0';
+        
+        // Scientific notation for very large/small numbers
+        if (Math.abs(number) >= 1e12 || (Math.abs(number) < 1e-6 && number !== 0)) {
+            return number.toExponential(6);
+        }
+        
+        // Format with appropriate decimal places
+        const formatted = number.toFixed(10).replace(/\.?0+$/, '');
+        return formatted.length > 12 ? number.toPrecision(6) : formatted;
+    }
+
+    getOperatorSymbol(operator) {
+        const symbols = {
+            '+': '+',
+            '-': '−',
+            '*': '×',
+            '/': '÷'
+        };
+        return symbols[operator] || operator;
+    }
+
+    handleKeyboard(event) {
+        const key = event.key;
+        
+        // Prevent default for calculator keys
+        if ('0123456789+-*/.='.includes(key) || key === 'Enter' || key === 'Escape' || key === 'Backspace') {
+            event.preventDefault();
+        }
+        
+        if ('0123456789'.includes(key)) {
+            this.performAction('number', key);
+        } else if (key === '.') {
+            this.performAction('decimal');
+        } else if (key === '+') {
+            this.performAction('operator', '+');
+        } else if (key === '-') {
+            this.performAction('operator', '-');
+        } else if (key === '*') {
+            this.performAction('operator', '*');
+        } else if (key === '/') {
+            this.performAction('operator', '/');
+        } else if (key === '=' || key === 'Enter') {
+            this.performAction('equals');
+        } else if (key === 'Escape') {
+            this.performAction('clear');
+        } else if (key === 'Backspace') {
+            this.performAction('backspace');
+        }
+    }
+
+    addToHistory(entry) {
+        this.history.unshift(entry);
+        if (this.history.length > 50) { // Limit history size for performance
+            this.history = this.history.slice(0, 50);
+        }
+        this.saveHistory();
+        this.loadHistory();
+    }
+
+    loadHistory() {
+        if (!this.historyList) return;
+        
+        // Use DocumentFragment for better performance
+        const fragment = document.createDocumentFragment();
+        
+        this.history.forEach(entry => {
+            const li = document.createElement('li');
+            li.textContent = entry;
+            li.addEventListener('click', () => {
+                const result = entry.split(' = ')[1];
+                if (result) {
+                    this.currentInput = result;
+                    this.updateDisplay();
+                }
+            }, { passive: true });
+            fragment.appendChild(li);
+        });
+        
+        this.historyList.innerHTML = '';
+        this.historyList.appendChild(fragment);
+    }
+
+    saveHistory() {
         try {
-            history = JSON.parse(savedHistory);
-            updateHistoryDisplay();
+            localStorage.setItem('calculatorHistory', JSON.stringify(this.history));
         } catch (e) {
-            console.error('Error loading history:', e);
-            history = [];
+            console.warn('Unable to save history to localStorage');
+        }
+    }
+
+    clearHistory() {
+        this.history = [];
+        this.saveHistory();
+        this.loadHistory();
+    }
+
+    toggleHistory() {
+        if (this.historyPanel) {
+            this.historyPanel.classList.toggle('collapsed');
+        }
+    }
+
+    handleHistoryClick(event) {
+        if (event.target.tagName === 'LI') {
+            const result = event.target.textContent.split(' = ')[1];
+            if (result) {
+                this.currentInput = result;
+                this.waitingForOperand = true;
+                this.updateDisplay();
+            }
         }
     }
 }
 
-function saveHistory() {
-    try {
-        localStorage.setItem('calc-history', JSON.stringify(history));
-    } catch (e) {
-        console.error('Error saving history:', e);
-    }
-}
-
-// Display functions
-function updateExpression() {
-    if (elements.expression) {
-        elements.expression.textContent = formatExpression(currentExpression);
+// Initialize calculator when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const calculator = new Calculator();
+    
+    // Add to global scope for debugging (remove in production)
+    window.calculator = calculator;
+    
+    // Performance monitoring
+    if ('performance' in window) {
+        window.addEventListener('load', () => {
+            const loadTime = performance.now();
+            console.log(`Calculator loaded in ${loadTime.toFixed(2)}ms`);
+        });
     }
     
-    // Live preview calculation
-    try {
-        const result = evaluateExpression(currentExpression);
-        if (!isNaN(result) && isFinite(result) && elements.result) {
-            elements.result.value = formatNumber(result);
-        }
-    } catch (e) {
-        // Ignore preview errors
+    // Service Worker for app-like experience (optional)
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {
+            console.log('Service Worker registration failed');
+        });
     }
-}
-
-function updateDisplay() {
-    if (elements.result) {
-        elements.result.value = currentResult;
-    }
-    if (elements.expression) {
-        elements.expression.textContent = formatExpression(currentExpression);
-    }
-}
-
-function formatNumber(num) {
-    if (typeof num !== 'number') num = parseFloat(num);
-    if (isNaN(num) || !isFinite(num)) return 'Error';
-    
-    // Optimized number formatting
-    if (num % 1 === 0 && Math.abs(num) < 1e10) {
-        return num.toString();
-    }
-    
-    return parseFloat(num.toPrecision(10)).toString();
-}
-
-function formatExpression(expr) {
-    return expr
-        .replace(/\*/g, '×')
-        .replace(/\//g, '÷')
-        .replace(/-/g, '−')
-        .replace(/Math\.sqrt\(/g, '√(')
-        .replace(/Math\.sin\(/g, 'sin(')
-        .replace(/Math\.cos\(/g, 'cos(')
-        .replace(/Math\.tan\(/g, 'tan(')
-        .replace(/Math\.log10\(/g, 'log(');
-}
-
-// Keyboard support
-function handleKeyboardInput(event) {
-    const key = event.key;
-    
-    if (/\d/.test(key)) appendValue(key);
-    else if (key === '+') appendOperator('+');
-    else if (key === '-') appendOperator('-');
-    else if (key === '*') appendOperator('*');
-    else if (key === '/') appendOperator('/');
-    else if (key === '.') appendValue('.');
-    else if (key === '%') percentage();
-    else if (key === 'Enter' || key === '=') calculate();
-    else if (key === 'Escape') clearAll();
-    else if (key === 'Backspace') deleteChar();
-}
-
-// UI functions
-function toggleHistory() {
-    if (!elements.historyPanel) return;
-    elements.historyPanel.classList.toggle('collapsed');
-    elements.collapseBtn.textContent = elements.historyPanel.classList.contains('collapsed') ? '▶' : '▼';
-}
-
-function showError() {
-    if (elements.result) {
-        elements.result.value = 'Error';
-        elements.result.classList.add('error');
-        
-        setTimeout(() => {
-            elements.result.classList.remove('error');
-            clearAll();
-        }, 2000);
-    }
-}
-
-// Add ripple effect for better UX without performance impact
-document.querySelectorAll('.btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        const ripple = document.createElement('span');
-        ripple.classList.add('ripple');
-        ripple.style.left = `${x}px`;
-        ripple.style.top = `${y}px`;
-        
-        this.appendChild(ripple);
-        
-        setTimeout(() => {
-            if (ripple.parentNode) ripple.parentNode.removeChild(ripple);
-        }, 600);
-    });
 });
 
-// Add dynamic CSS for ripple effect
-const style = document.createElement('style');
-style.textContent = `
-.ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.6);
-    transform: scale(0);
-    animation: ripple 0.6s linear;
-    pointer-events: none;
+// Optimize for mobile performance
+if ('ontouchstart' in window) {
+    // Disable hover effects on mobile
+    document.documentElement.classList.add('touch-device');
+    
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (event) => {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
 }
-@keyframes ripple {
-    to { transform: scale(4); opacity: 0; }
-}
-`;
-document.head.appendChild(style);
