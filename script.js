@@ -19,18 +19,30 @@ function initCalculator() {
     
     // Add event listeners to buttons
     document.querySelectorAll('.number-btn').forEach(btn => {
-        btn.addEventListener('click', () => appendNumber(btn.dataset.val));
+        btn.addEventListener('click', () => {
+            appendNumber(btn.dataset.val);
+            animateButton(btn);
+        });
     });
     
     document.querySelectorAll('.operator-btn, .function-btn[data-op]').forEach(btn => {
-        btn.addEventListener('click', () => appendOperator(btn.dataset.op));
+        btn.addEventListener('click', () => {
+            appendOperator(btn.dataset.op);
+            animateButton(btn);
+        });
     });
     
     // Action buttons
-    document.querySelector('[data-action="clearAll"]').addEventListener('click', clearAll);
-    document.querySelector('[data-action="clearEntry"]').addEventListener('click', clearEntry);
-    document.querySelector('[data-action="delete"]').addEventListener('click', deleteChar);
-    document.querySelector('[data-action="calculate"]').addEventListener('click', calculate);
+    document.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.dataset.action;
+            if (action === 'clearAll') clearAll();
+            else if (action === 'clearEntry') clearEntry();
+            else if (action === 'delete') deleteChar();
+            else if (action === 'calculate') calculate();
+            animateButton(btn);
+        });
+    });
     
     // History buttons
     clearHistoryBtn.addEventListener('click', clearHistory);
@@ -38,6 +50,14 @@ function initCalculator() {
     
     // Keyboard support
     document.addEventListener('keydown', handleKeyPress);
+}
+
+// Button animation
+function animateButton(btn) {
+    btn.classList.add('active');
+    setTimeout(() => {
+        btn.classList.remove('active');
+    }, 100);
 }
 
 // Update display
@@ -250,21 +270,40 @@ function toggleHistoryCollapse() {
 
 // Handle keyboard input
 function handleKeyPress(e) {
-    if (e.key >= '0' && e.key <= '9') {
-        appendNumber(e.key);
-    } else if (e.key === '.') {
-        appendNumber('.');
-    } else if (['+', '-', '*', '/'].includes(e.key)) {
-        appendOperator(e.key);
-    } else if (e.key === 'Enter' || e.key === '=') {
-        calculate();
-    } else if (e.key === 'Escape') {
-        clearAll();
-    } else if (e.key === 'Backspace') {
-        deleteChar();
-    } else if (e.key === '%') {
-        handlePercentage();
+    const button = getButtonForKey(e.key);
+    if (button) {
+        animateButton(button);
+        button.click();
     }
+}
+
+// Get button for keyboard key
+function getButtonForKey(key) {
+    const keyMap = {
+        '0': '[data-val="0"]',
+        '1': '[data-val="1"]',
+        '2': '[data-val="2"]',
+        '3': '[data-val="3"]',
+        '4': '[data-val="4"]',
+        '5': '[data-val="5"]',
+        '6': '[data-val="6"]',
+        '7': '[data-val="7"]',
+        '8': '[data-val="8"]',
+        '9': '[data-val="9"]',
+        '.': '[data-val="."]',
+        '+': '[data-op="+"]',
+        '-': '[data-op="-"]',
+        '*': '[data-op="*"]',
+        '/': '[data-op="/"]',
+        '%': '[data-op="%"]',
+        'Enter': '[data-action="calculate"]',
+        '=': '[data-action="calculate"]',
+        'Escape': '[data-action="clearAll"]',
+        'Backspace': '[data-action="delete"]'
+    };
+    
+    const selector = keyMap[key];
+    return selector ? document.querySelector(selector) : null;
 }
 
 // Initialize when DOM is loaded
