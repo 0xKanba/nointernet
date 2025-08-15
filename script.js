@@ -1,235 +1,587 @@
-// Calculator State
-let currentExpression = '';
-let currentResult = '0';
-let shouldResetOnNextInput = false;
-let calculationLog = [];
-
-// DOM Elements
-const elements = {
-  result: document.getElementById('result'),
-  expression: document.getElementById('expression'),
-  buttons: document.querySelectorAll('.btn'),
-  logList: document.getElementById('log-list'),
-  toggleLogBtn: document.getElementById('toggle-log'),
-  refreshBtn: document.getElementById('refresh-btn'),
-  installBtn: document.getElementById('install-btn'),
-};
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-  loadLog();
-  bindEvents();
-  updateDisplay();
-});
-
-function bindEvents() {
-  // Button clicks
-  elements.buttons.forEach(btn => {
-    btn.addEventListener('click', handleButton);
-  });
-
-  // Toggle log
-  elements.toggleLogBtn?.addEventListener('click', toggleLog);
-
-  // Keyboard support
-  document.addEventListener('keydown', handleKeyboard);
-}
-
-function handleButton(e) {
-  const button = e.currentTarget;
-  const action = button.dataset.action;
-  const value = button.dataset.value;
-
-  // Visual feedback
-  button.classList.add('pressed');
-  setTimeout(() => button.classList.remove('pressed'), 100);
-
-  if (action) {
-    executeAction(action);
-  } else if (value) {
-    appendValue(value);
-  }
-}
-
-function appendValue(val) {
-  if (shouldResetOnNextInput) {
-    currentExpression = '';
-    shouldResetOnNextInput = false;
-  }
-
-  // Replace symbols
-  if (val === 'π') val = Math.PI;
-  if (val === 'e') val = Math.E;
-
-  currentExpression += val;
-  updateDisplay();
-  calculatePreview();
-}
-
-function executeAction(action) {
-  switch (action) {
-    case 'clearAll':
-      currentExpression = '';
-      currentResult = '0';
-      shouldResetOnNextInput = false;
-      break;
-    case 'clearEntry':
-      currentResult = '0';
-      break;
-    case 'percentage':
-      if (currentResult !== '0') {
-        currentResult = (parseFloat(currentResult) / 100).toString();
-        currentExpression = currentResult;
-        shouldResetOnNextInput = true;
-      }
-      break;
-    case 'deleteChar':
-      if (currentExpression.length > 0) {
-        currentExpression = currentExpression.slice(0, -1);
-      }
-      break;
-    case 'calculate':
-      calculateResult();
-      return;
-  }
-  updateDisplay();
-}
-
-function calculatePreview() {
-  try {
-    const result = evaluate(currentExpression);
-    if (isFinite(result)) {
-      currentResult = formatNumber(result);
+// مكتبة رياضية آمنة لحساب التعبيرات
+class MathParser {
+    constructor() {
+        this.functions = {
+            sin: Math.sin,
+            cos: Math.cos,
+            tan: Math.tan,
+            log: Math.log10,
+            ln: Math.log,
+            sqrt: Math.sqrt
+        };
+        
+        this.constants = {
+            π: Math.PI,
+            e: Math.E
+        };
     }
-  } catch (e) {
-    // Silent fail
-  }
+    
+    // تحويل التعبير إلى مصفوفة من الرموز
+    tokenize(expression) {
+        const tokens = [];
+        let i = 0;
+        
+        while (i < expression.length) {
+            const char = expression[i];
+            
+            // تخطي الفراغات
+            if (char === ' ') {
+                i++;
+                continue;
+            }
+            
+            // الأرقام
+            if (/[0-9.]/.test(char)) {
+                let num = '';
+                while (i < expression.length && /[0-9.]/.test(expression[i])) {
+                    num += expression[i];
+                    i++;
+                }
+                tokens.push({ type: 'number', value: parseFloat(num) });
+                continue;
+            }
+            
+            // الدوال
+            if (/[a-zA-Z]/.test(char)) {
+                let func = '';
+                while (i < expression.length && /[a-zA-Z]/.test(expression[i])) {
+                    func += expression[i];
+                    i++;
+                }
+                
+                // التحقق من وجود القوس
+                if (expression[i] === '(') {
+                    tokens.push({ type: 'function', name: func });
+                    i++; // تخطي القوس المفتوح
+                    continue;
+                } else {
+                    i -= func.length;
+                    const numStr = '';
+                    while (i < expression.length && /[0-9.]/.test(expression[i])) {
+                        numStr += expression[i];
+                        i++;
+                    }
+                    tokens.push({ type: 'number', value: parseFloat(numStr) });
+                    continue;
+                }
+            }
+            
+            // الثوابت
+            if (char === 'π' || char === 'e') {
+                tokens.push({ 
+                    type: 'number', 
+                    value: this.constants[char] 
+                });
+                i++;
+                continue;
+            }
+            
+            // العوامل
+            if (['+', '-', '*', '/', '^'].includes(char)) {
+                tokens.push({ type: 'operator', value: char });
+                i++;
+                continue;
+            }
+            
+            // الأقواس
+            if (char === '(' || char === ')') {
+                tokens.push({ type: 'paren', value: char });
+                i++;
+                continue;
+            }
+            
+            // العامل !
+            if (char === '!') {
+                tokens.push({ type: 'factorial', value: '!' });
+                i++;
+                continue;
+            }
+            
+            i++;
+        }
+        
+        return tokens;
+    }
+    
+    // تحويل التعبير من التنسيق العادي إلى RPN (Reverse Polish Notation)
+    toRPN(tokens) {
+        const output = [];
+        const operators = [];
+        
+        const precedence = {
+            '!': 4,
+            '^': 3,
+            '*': 2,
+            '/': 2,
+            '+': 1,
+            '-': 1
+        };
+        
+        const associativity = {
+            '!': 'right',
+            '^': 'right',
+            '*': 'left',
+            '/': 'left',
+            '+': 'left',
+            '-': 'left'
+        };
+        
+        for (const token of tokens) {
+            if (token.type === 'number') {
+                output.push(token);
+            } else if (token.type === 'function') {
+                operators.push(token);
+            } else if (token.type === 'operator') {
+                const o1 = token.value;
+                while (operators.length > 0) {
+                    const o2 = operators[operators.length - 1];
+                    
+                    if (o2.type === 'paren' && o2.value === '(') {
+                        break;
+                    }
+                    
+                    if ((associativity[o1] === 'left' && precedence[o1] <= precedence[o2.value]) ||
+                        (associativity[o1] === 'right' && precedence[o1] < precedence[o2.value])) {
+                        output.push(operators.pop());
+                    } else {
+                        break;
+                    }
+                }
+                operators.push({ type: 'operator', value: o1 });
+            } else if (token.type === 'factorial') {
+                operators.push(token);
+            } else if (token.type === 'paren') {
+                if (token.value === '(') {
+                    operators.push(token);
+                } else {
+                    while (operators.length > 0 && 
+                           !(operators[operators.length - 1].type === 'paren' && 
+                             operators[operators.length - 1].value === '(')) {
+                        output.push(operators.pop());
+                    }
+                    
+                    if (operators.length > 0 && operators[operators.length - 1].type === 'paren') {
+                        operators.pop(); // إزالة القوس المفتوح
+                    }
+                    
+                    // معالجة الدوال
+                    if (operators.length > 0 && operators[operators.length - 1].type === 'function') {
+                        output.push(operators.pop());
+                    }
+                }
+            }
+        }
+        
+        while (operators.length > 0) {
+            const op = operators.pop();
+            if (op.type === 'paren') {
+                throw new Error('Mismatched parentheses');
+            }
+            output.push(op);
+        }
+        
+        return output;
+    }
+    
+    // حساب قيمة التعبير في تنسيق RPN
+    evaluateRPN(rpn) {
+        const stack = [];
+        
+        for (const token of rpn) {
+            if (token.type === 'number') {
+                stack.push(token.value);
+            } else if (token.type === 'operator') {
+                if (stack.length < 2) throw new Error('Invalid expression');
+                
+                const b = stack.pop();
+                const a = stack.pop();
+                
+                switch (token.value) {
+                    case '+': stack.push(a + b); break;
+                    case '-': stack.push(a - b); break;
+                    case '*': stack.push(a * b); break;
+                    case '/': 
+                        if (b === 0) throw new Error('Division by zero');
+                        stack.push(a / b); 
+                        break;
+                    case '^': stack.push(Math.pow(a, b)); break;
+                }
+            } else if (token.type === 'factorial') {
+                if (stack.length < 1) throw new Error('Invalid expression');
+                
+                const n = stack.pop();
+                if (n < 0 || !Number.isInteger(n)) throw new Error('Invalid factorial');
+                
+                let result = 1;
+                for (let i = 2; i <= n; i++) {
+                    result *= i;
+                }
+                stack.push(result);
+            } else if (token.type === 'function') {
+                if (stack.length < 1) throw new Error('Invalid expression');
+                
+                const arg = stack.pop();
+                const func = this.functions[token.name];
+                if (!func) throw new Error(`Unknown function: ${token.name}`);
+                
+                stack.push(func(arg));
+            }
+        }
+        
+        if (stack.length !== 1) {
+            throw new Error('Invalid expression');
+        }
+        
+        return stack[0];
+    }
+    
+    // حساب التعبير بشكل آمن
+    evaluate(expression) {
+        try {
+            const tokens = this.tokenize(expression);
+            const rpn = this.toRPN(tokens);
+            return this.evaluateRPN(rpn);
+        } catch (error) {
+            throw new Error(`Calculation error: ${error.message}`);
+        }
+    }
 }
 
-function calculateResult() {
-  if (!currentExpression) return;
-
-  try {
-    const expr = currentExpression;
-    const result = evaluate(expr);
-
-    if (!isFinite(result)) throw new Error('Invalid');
-
-    const formatted = formatNumber(result);
-    addToLog(`${expr} = ${formatted}`);
-    currentResult = formatted;
-    shouldResetOnNextInput = true;
-
-    // Success flash
-    elements.result.classList.add('success');
-    setTimeout(() => elements.result.classList.remove('success'), 600);
-  } catch (e) {
-    showError();
-  }
-  updateDisplay();
+// تخزين التاريخ
+class HistoryManager {
+    constructor(maxItems = 21) {
+        this.maxItems = maxItems;
+        this.history = JSON.parse(localStorage.getItem('calculatorHistory') || '[]');
+    }
+    
+    add(expression, result) {
+        this.history.unshift({ expression, result, timestamp: Date.now() });
+        this.history = this.history.slice(0, this.maxItems);
+        localStorage.setItem('calculatorHistory', JSON.stringify(this.history));
+        return this.history;
+    }
+    
+    get() {
+        return this.history;
+    }
+    
+    clear() {
+        this.history = [];
+        localStorage.removeItem('calculatorHistory');
+        return this.history;
+    }
 }
 
-function evaluate(expr) {
-  expr = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-').replace(/\^/g, '**');
-  expr = expr.replace(/√\(/g, 'Math.sqrt(');
-  expr = expr.replace(/sin\(/g, 'Math.sin(');
-  expr = expr.replace(/cos\(/g, 'Math.cos(');
-  expr = expr.replace(/tan\(/g, 'Math.tan(');
-  expr = expr.replace(/log\(/g, 'Math.log10(');
-  expr = expr.replace(/ln\(/g, 'Math.log(');
-
-  // Factorial
-  expr = expr.replace(/(\d+(\.\d+)?)\!/g, (_, n) => factorial(parseFloat(n)));
-
-  return Function(`"use strict"; return (${expr})`)();
+// واجهة الحاسبة
+class Calculator {
+    constructor() {
+        this.expression = '';
+        this.result = '0';
+        this.shouldReset = false;
+        this.parser = new MathParser();
+        this.history = new HistoryManager();
+        this.elements = {
+            result: document.getElementById('result'),
+            expression: document.getElementById('expression'),
+            historyList: document.getElementById('history-list'),
+            toggleHistory: document.getElementById('toggle-history')
+        };
+        
+        this.init();
+    }
+    
+    init() {
+        this.bindEvents();
+        this.renderHistory();
+    }
+    
+    bindEvents() {
+        // أحداث الأزرار
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', () => this.handleButton(button));
+            button.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // منع الحركة الزائدة
+            });
+        });
+        
+        // أحداث لوحة المفاتيح
+        document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+        
+        // تبديل لوحة التاريخ
+        this.elements.toggleHistory?.addEventListener('click', () => {
+            const panel = document.querySelector('.history-panel');
+            panel.classList.toggle('compact');
+            this.elements.toggleHistory.textContent = 
+                panel.classList.contains('compact') ? '▼' : '▲';
+        });
+    }
+    
+    handleButton(button) {
+        const action = button.dataset.action;
+        const value = button.dataset.value;
+        
+        // تأثير الضغط
+        button.classList.add('pressed');
+        setTimeout(() => button.classList.remove('pressed'), 100);
+        
+        if (action) {
+            this.handleAction(action);
+        } else if (value) {
+            this.handleValue(value);
+        }
+    }
+    
+    handleValue(value) {
+        if (this.shouldReset) {
+            this.expression = '';
+            this.shouldReset = false;
+        }
+        
+        this.expression += value;
+        this.updateDisplay();
+        this.calculatePreview();
+    }
+    
+    handleAction(action) {
+        switch (action) {
+            case 'clearAll':
+                this.expression = '';
+                this.result = '0';
+                this.shouldReset = false;
+                break;
+            case 'clearEntry':
+                this.result = '0';
+                break;
+            case 'percentage':
+                if (this.result !== '0') {
+                    const num = parseFloat(this.result) / 100;
+                    this.result = this.formatNumber(num);
+                    this.expression = this.result;
+                    this.shouldReset = true;
+                }
+                break;
+            case 'deleteChar':
+                if (this.expression.length > 0) {
+                    this.expression = this.expression.slice(0, -1);
+                }
+                break;
+            case 'calculate':
+                this.calculate();
+                return;
+        }
+        this.updateDisplay();
+    }
+    
+    calculate() {
+        if (!this.expression) return;
+        
+        try {
+            const cleanExpr = this.cleanExpression(this.expression);
+            const result = this.parser.evaluate(cleanExpr);
+            
+            if (!isFinite(result)) {
+                throw new Error('Invalid result');
+            }
+            
+            const formattedResult = this.formatNumber(result);
+            this.history.add(this.expression, formattedResult);
+            this.result = formattedResult;
+            this.shouldReset = true;
+            
+            // تحديث العرض
+            this.updateDisplay();
+            this.renderHistory();
+            
+            // تأثير النجاح
+            this.elements.result.classList.add('success');
+            setTimeout(() => {
+                this.elements.result.classList.remove('success');
+            }, 600);
+        } catch (error) {
+            this.showError(error.message);
+        }
+    }
+    
+    calculatePreview() {
+        if (!this.expression) return;
+        
+        try {
+            const cleanExpr = this.cleanExpression(this.expression);
+            const result = this.parser.evaluate(cleanExpr);
+            
+            if (isFinite(result)) {
+                this.result = this.formatNumber(result);
+            }
+        } catch (error) {
+            // لا نعرض الأخطاء أثناء الكتابة
+        }
+        this.updateDisplay();
+    }
+    
+    cleanExpression(expr) {
+        return expr
+            .replace(/×/g, '*')
+            .replace(/÷/g, '/')
+            .replace(/−/g, '-')
+            .replace(/√/g, 'sqrt')
+            .replace(/\^/g, '**');
+    }
+    
+    formatNumber(num) {
+        if (typeof num === 'string') {
+            num = parseFloat(num);
+        }
+        
+        if (isNaN(num) || !isFinite(num)) {
+            return 'Error';
+        }
+        
+        // إذا كان العدد صحيحًا
+        if (Math.abs(num % 1) < Number.EPSILON) {
+            return num.toString();
+        }
+        
+        // تحديد عدد الأرقام العشرية ديناميكيًا
+        const absNum = Math.abs(num);
+        let decimals;
+        
+        if (absNum >= 1e9 || absNum <= 1e-6) {
+            // استخدام الصيغة العلمية للأرقام الكبيرة جدًا أو الصغيرة جدًا
+            return num.toExponential(6);
+        } else if (absNum >= 1) {
+            decimals = 8 - Math.floor(Math.log10(absNum));
+        } else {
+            decimals = 8;
+        }
+        
+        decimals = Math.max(2, Math.min(8, decimals));
+        return parseFloat(num.toFixed(decimals)).toString();
+    }
+    
+    updateDisplay() {
+        this.elements.expression.textContent = this.formatDisplayExpression(this.expression);
+        this.elements.result.textContent = this.result;
+    }
+    
+    formatDisplayExpression(expr) {
+        return expr
+            .replace(/\*/g, '×')
+            .replace(/\//g, '÷')
+            .replace(/-/g, '−')
+            .replace(/sqrt/g, '√')
+            .replace(/\*\*/g, '^');
+    }
+    
+    renderHistory() {
+        const history = this.history.get();
+        this.elements.historyList.innerHTML = '';
+        
+        history.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            
+            const exprSpan = document.createElement('span');
+            exprSpan.className = 'history-item-expression';
+            exprSpan.textContent = this.formatDisplayExpression(item.expression);
+            
+            const resultSpan = document.createElement('span');
+            resultSpan.className = 'history-item-result';
+            resultSpan.textContent = item.result;
+            
+            li.appendChild(exprSpan);
+            li.appendChild(resultSpan);
+            this.elements.historyList.appendChild(li);
+        });
+    }
+    
+    showError(message) {
+        this.elements.result.textContent = 'Error';
+        this.elements.result.classList.add('error');
+        
+        setTimeout(() => {
+            this.elements.result.classList.remove('error');
+            this.expression = '';
+            this.result = '0';
+            this.updateDisplay();
+        }, 1500);
+    }
+    
+    handleKeyboard(e) {
+        const key = e.key.toLowerCase();
+        
+        // منع الافتراضي لبعض المفاتيح
+        if (['enter', 'escape', 'backspace'].includes(key)) {
+            e.preventDefault();
+        }
+        
+        // الأرقام
+        if (/\d/.test(key)) {
+            this.handleValue(key);
+        }
+        // العوامل
+        else if (key === '+' || key === '-' || key === '*' || key === '/') {
+            this.handleValue(key);
+        }
+        // مفاتيح خاصة
+        else if (key === 'enter' || key === '=') {
+            this.calculate();
+        }
+        else if (key === 'escape') {
+            this.handleAction('clearAll');
+        }
+        else if (key === 'backspace') {
+            this.handleAction('deleteChar');
+        }
+        else if (key === '.') {
+            this.handleValue('.');
+        }
+        else if (key === '%') {
+            this.handleAction('percentage');
+        }
+        // ثوابت ووظائف
+        else if (key === 'p') {
+            this.handleValue('π');
+        }
+        else if (key === 'e') {
+            this.handleValue('e');
+        }
+        else if (key === '!') {
+            this.handleValue('!');
+        }
+        else if (key === 's') {
+            this.handleValue('sin(');
+        }
+        else if (key === 'c') {
+            this.handleValue('cos(');
+        }
+        else if (key === 't') {
+            this.handleValue('tan(');
+        }
+        else if (key === 'l') {
+            this.handleValue('log(');
+        }
+        else if (key === 'n') {
+            this.handleValue('ln(');
+        }
+        else if (key === 'r') {
+            this.handleValue('√(');
+        }
+        else if (key === '^') {
+            this.handleValue('^');
+        }
+    }
 }
 
-function factorial(n) {
-  if (n < 0 || !Number.isInteger(n)) return NaN;
-  let f = 1;
-  for (let i = 2; i <= n; i++) f *= i;
-  return f;
-}
-
-function formatNumber(num) {
-  if (typeof num !== 'number') num = parseFloat(num);
-  if (!isFinite(num)) return 'Error';
-  return Math.abs(num % 1) < 1e-9 ? num.toFixed(0) : parseFloat(num.toFixed(8));
-}
-
-function updateDisplay() {
-  elements.expression.textContent = currentExpression
-    .replace(/\*/g, '×')
-    .replace(/\//g, '÷')
-    .replace(/-/g, '−')
-    .replace(/\*\*/g, '^');
-  elements.result.textContent = currentResult;
-}
-
-function showError() {
-  elements.result.textContent = 'Error';
-  elements.result.classList.add('error');
-  setTimeout(() => {
-    elements.result.classList.remove('error');
-    clearAll();
-  }, 1500);
-}
-
-function addToLog(entry) {
-  calculationLog.unshift(entry);
-  calculationLog = calculationLog.slice(0, 21);
-  saveLog();
-  renderLog();
-}
-
-function renderLog() {
-  elements.logList.innerHTML = '';
-  calculationLog.forEach(item => {
-    const li = document.createElement('li');
-    li.className = 'log-item';
-    li.textContent = item;
-    elements.logList.appendChild(li);
-  });
-}
-
-function saveLog() {
-  localStorage.setItem('calcLog', JSON.stringify(calculationLog));
-}
-
-function loadLog() {
-  const saved = localStorage.getItem('calcLog');
-  if (saved) {
-    calculationLog = JSON.parse(saved);
-    renderLog();
-  }
-}
-
-function toggleLog() {
-  const logContainer = document.querySelector('.log-container');
-  const isActive = logContainer.classList.toggle('active');
-  elements.toggleLogBtn.textContent = isActive ? '▲' : '▼';
-}
-
-// Keyboard support
-function handleKeyboard(e) {
-  const key = e.key;
-
-  if (['Enter', 'Escape', 'Backspace'].includes(key)) e.preventDefault();
-
-  if (/\d/.test(key)) appendValue(key);
-  else if (key === '.') appendValue('.');
-  else if (key === '+') appendValue('+');
-  else if (key === '-') appendValue('-');
-  else if (key === '*') appendValue('*');
-  else if (key === '/') appendValue('/');
-  else if (key === '(') appendValue('(');
-  else if (key === ')') appendValue(')');
-  else if (key === '^') appendValue('^');
-  else if (key === '%') executeAction('percentage');
-  else if (key === 'Backspace') executeAction('deleteChar');
-  else if (key === 'Escape') executeAction('clearAll');
-  else if (key === 'Enter') calculateResult();
-  else if (key === 'p') appendValue('π');
-  else if (key === 'e') appendValue('e');
-  else if (key === '!') appendValue('!');
-}
+// بدء تشغيل الحاسبة
+document.addEventListener('DOMContentLoaded', () => {
+    window.calculator = new Calculator();
+    
+    // عرض أزرار التثبيت إذا كان ذلك ممكنًا
+    if ('serviceWorker' in navigator) {
+        setTimeout(() => {
+            document.querySelectorAll('.control-btn').forEach(btn => {
+                btn.classList.add('show');
+            });
+        }, 1000);
+    }
+});
