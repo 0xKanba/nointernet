@@ -1,11 +1,12 @@
 {
   "name": "Sphere Calculator",
   "short_name": "Calculator",
-  "description": "fast easy",
+  "description": "A beautiful, fast, offline calculator that feels like a native app.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#1b1b23",
+  "background_color": "#000000",
   "theme_color": "#000000",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icons/calc192.png",
@@ -17,8 +18,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "orientation": "portrait",
-  "scope": "./",
-  "prefer_related_applications": false
+  ]
 }
