@@ -2,97 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#1b1b23">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Calculator</title>
+<link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="/icons/calc16.png" type="image/png">
+    <link rel="shortcut icon" href="/icons/calc512.png" type="image/png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/calc32.png">
+    <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Sphere Calculator</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icons/calc16.png" type="image/png">
-    <link rel="apple-touch-icon" href="icons/calc192.png">
-    
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- أزرار التحكم (تحديث / تنزيل) -->
-    <div class="controls">
-        <button id="install-btn" class="control-btn">Install App</button>
-        <button id="refresh-btn" class="control-btn">Update App</button>
-    </div>
-
-    <!-- الهيكل الرئيسي -->
-    <div class="app-container">
-        <!-- لوحة التاريخ -->
-        <div class="history-panel">
+    <div class="calculator-container">
+        <div class="history-panel" id="history-panel">
             <div class="history-header">
-                <h2>History</h2>
-                <button id="clear-history" class="clear-btn">Clear</button>
+                <h4>History</h4>
+                <button class="collapse-btn" id="collapse-btn">▼</button>
             </div>
             <div class="history-content">
-                <ul id="history-list" class="history-list"></ul>
+                <ul id="history-list"></ul>
+                <button id="clear-history" class="clear-btn">Clear All</button>
             </div>
         </div>
 
-        <!-- الحاسبة -->
-        <div class="calculator">
+        <div class="calculator" id="calculator">
             <div class="display-container">
-                <div id="expression" class="expression"></div>
-                <div id="result" class="result">0</div>
+                <div class="expression" id="expression"></div>
+                <input type="text" id="result" readonly placeholder="0">
             </div>
 
             <div class="buttons-grid">
-                <!-- الصف الأول -->
-                <button class="btn function-btn" data-value="(">(</button>
-                <button class="btn function-btn" data-value=")">)</button>
-                <button class="btn function-btn" data-value="^">^</button>
-                <button class="btn operator-btn" data-value="/">÷</button>
-                
-                <!-- الصف الثاني -->
-                <button class="btn function-btn" data-value="√">(</button>
-                <button class="btn function-btn" data-value="π">π</button>
-                <button class="btn function-btn" data-value="e">e</button>
-                <button class="btn operator-btn" data-value="*">×</button>
-                
-                <!-- الصف الثالث -->
-                <button class="btn number-btn" data-value="7">7</button>
-                <button class="btn number-btn" data-value="8">8</button>
-                <button class="btn number-btn" data-value="9">9</button>
-                <button class="btn operator-btn" data-value="-">−</button>
-                
-                <!-- الصف الرابع -->
-                <button class="btn number-btn" data-value="4">4</button>
-                <button class="btn number-btn" data-value="5">5</button>
-                <button class="btn number-btn" data-value="6">6</button>
-                <button class="btn operator-btn" data-value="+">+</button>
-                
-                <!-- الصف الخامس -->
-                <button class="btn number-btn" data-value="1">1</button>
-                <button class="btn number-btn" data-value="2">2</button>
-                <button class="btn number-btn" data-value="3">3</button>
+                <button class="btn function-btn" data-action="clearAll">AC</button>
+                <button class="btn function-btn" data-action="clearEntry">CE</button>
+                <button class="btn function-btn" data-op="%">%</button>
+                <button class="btn operator-btn" data-op="/">÷</button>
+
+                <button class="btn number-btn" data-val="7">7</button>
+                <button class="btn number-btn" data-val="8">8</button>
+                <button class="btn number-btn" data-val="9">9</button>
+                <button class="btn operator-btn" data-op="*">×</button>
+
+                <button class="btn number-btn" data-val="4">4</button>
+                <button class="btn number-btn" data-val="5">5</button>
+                <button class="btn number-btn" data-val="6">6</button>
+                <button class="btn operator-btn" data-op="-">−</button>
+
+                <button class="btn number-btn" data-val="1">1</button>
+                <button class="btn number-btn" data-val="2">2</button>
+                <button class="btn number-btn" data-val="3">3</button>
+                <button class="btn operator-btn" data-op="+">+</button>
+
+                <button class="btn number-btn zero-btn" data-val="0">0</button>
+                <button class="btn function-btn" data-val=".">.</button>
+                <button class="btn function-btn" data-action="delete">⌫</button>
                 <button class="btn equals-btn" data-action="calculate">=</button>
-                
-                <!-- الصف السادس -->
-                <button class="btn number-btn zero-btn" data-value="0">0</button>
-                <button class="btn function-btn" data-value=".">.</button>
-                <button class="btn delete-btn" data-action="deleteChar"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 12H5M12 5V19M5 12L12 5L19 12L12 19L5 12Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-                <button class="btn percentage-btn" data-action="percentage">%</button>
-                
-                <!-- الصف السابع -->
-                <button class="btn sci-btn" data-value="sin(">sin</button>
-                <button class="btn sci-btn" data-value="cos(">cos</button>
-                <button class="btn sci-btn" data-value="tan(">tan</button>
-                <button class="btn sci-btn" data-value="log(">log</button>
-                
-                <!-- الصف الثامن -->
-                <button class="btn sci-btn" data-value="ln(">ln</button>
-                <button class="btn sci-btn" data-value="!">n!</button>
-                <button class="btn ac-btn" data-action="clearAll">AC</button>
             </div>
         </div>
     </div>
 
-    <script src="math.js"></script>
+    <script src="script.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
