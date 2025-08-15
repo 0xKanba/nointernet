@@ -1,5 +1,5 @@
 // Service Worker for Offline Support
-const CACHE_NAME = 'circle-calculator-v1';
+const CACHE_NAME = 'sphere-calculator-v2';
 const urlsToCache = [
   '/',
   'index.html',
@@ -9,10 +9,6 @@ const urlsToCache = [
   'manifest.json',
   'icons/calc192.png',
   'icons/calc512.png'
-  'icons/calc16.png'
-  'icons/calc32.png'
-  'icons/apple-touch-icon.png'
-  'icons/favicon.ico'
 ];
 
 // Install service worker
@@ -43,4 +39,11 @@ self.addEventListener('fetch', (event) => {
         return response || fetch(event.request);
       })
   );
+});
+
+// Listen for message to skip waiting
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting') {
+    self.skipWaiting();
+  }
 });
