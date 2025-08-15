@@ -1,11 +1,11 @@
 {
-  "name": "Calculator",
+  "name": "Sphere Calculator",
   "short_name": "Calculator",
-  "description": "A beautiful circular calculator that works offline",
+  "description": "A beautiful spherical calculator that works offline",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#6e8efb",
-  "theme_color": "#a777e3",
+  "background_color": "#232526",
+  "theme_color": "#414345",
   "icons": [
     {
       "src": "icons/calc192.png",
