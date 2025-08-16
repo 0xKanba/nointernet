@@ -12,8 +12,8 @@ window.addEventListener('load', () => {
           });
         });
 
-        // Check for updates daily
-        setInterval(() => reg.update(), 24 * 60 * 60 * 1000);
+        // Check for updates every 30 seconds
+        setInterval(() => reg.update(), 30 * 1000);
       });
   }
 
@@ -32,7 +32,7 @@ function showUpdateButton() {
   btn.style.cssText = `
     position: fixed;
     top: 20px;
-    left: 20px;  /* تغيير من right إلى left */
+    left: 20px;
     padding: 12px 20px;
     background: #4CAF50;
     color: white;
@@ -62,7 +62,7 @@ function showInstallButton(event) {
   btn.style.cssText = `
     position: fixed;
     top: 70px;
-    left: 20px;  /* تغيير من right إلى left */
+    left: 20px;
     padding: 12px 20px;
     background: #2196F3;
     color: white;
