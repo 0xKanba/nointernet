@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calculator-v7';
+const CACHE_NAME = 'calculator-v8';
 const FILES_TO_CACHE = [
   './',
   'index.html',
@@ -7,14 +7,15 @@ const FILES_TO_CACHE = [
   'app.js',
   'manifest.json',
   'icons/calc192.png',
-  'icons/calc512.png'
-  'icons/calc16.png'
-  'icons/calc32.png'
-  'icons/apple-touch-icon.png'
+  'icons/calc512.png',
+  'icons/calc16.png',
+  'icons/calc32.png',
+  'icons/apple-touch-icon.png',
   'icons/favicon.ico'
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(FILES_TO_CACHE))
@@ -28,7 +29,7 @@ self.addEventListener('activate', (event) => {
         keys.filter(key => key !== CACHE_NAME)
             .map(key => caches.delete(key))
       )
-    )
+    ).then(() => self.clients.claim())
   );
 });
 
@@ -40,7 +41,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data === 'skipWaiting') {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });
