@@ -27,12 +27,6 @@
         <div class="grid-overlay"></div>
     </div>
 
-    <!-- Language Toggle -->
-    <div class="controls-top">
-        <button id="lang-btn" class="control-btn">عربي</button>
-        <button id="mode-toggle" class="control-btn">Scientific</button>
-        <button id="theme-toggle" class="control-btn">🌙</button>
-    </div>
 
     <!-- Calculator Container -->
     <div class="calculator-container">
@@ -97,7 +91,7 @@
                 <button class="btn operator-btn" onclick="appendOperator('+')">+</button>
 
                 <!-- Row 5 -->
-                <button class="btn number-btn zero-btn" onclick="appendValue('0')">0</button>
+                <button class="btn number-btn" onclick="appendValue('0')">0</button>
                 <button class="btn function-btn" onclick="appendValue('.')">.</button>
                 <button class="btn function-btn" onclick="deleteChar()">⌫</button>
                 <button class="btn equals-btn" onclick="calculate()">=</button>
