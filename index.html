@@ -1,105 +1,438 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
+    <title>Time Jump - Endless Runner Adventure</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="/icons/calc16.png" type="image/png">
-    <link rel="shortcut icon" href="/icons/calc512.png" type="image/png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/calc32.png">
+    <link rel="icon" href="/icons/game-icon.png" type="image/png">
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 3D Background -->
-    <div class="bg-3d">
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-            <div class="shape shape-4"></div>
-            <div class="shape shape-5"></div>
-        </div>
+    <!-- Game Background with Time Effects -->
+    <div class="game-background">
+        <div class="time-particles"></div>
+        <div class="floating-crystals"></div>
         <div class="grid-overlay"></div>
+        <div class="time-ripples"></div>
     </div>
 
-
-    <!-- Calculator Container -->
-    <div class="calculator-container">
-        <!-- History Panel -->
-        <div class="history-panel" id="history-panel">
-            <div class="history-header">
-                <h4 id="history-title">History</h4>
-                <button class="collapse-btn" id="collapse-btn">▼</button>
+    <!-- Main Menu Screen -->
+    <div id="main-menu" class="screen active">
+        <div class="menu-container">
+            <div class="game-title">
+                <h1 class="title-main">TIME JUMP</h1>
+                <p class="title-subtitle">Endless Runner Adventure</p>
             </div>
-            <div class="history-content">
-                <ul id="history-list"></ul>
-                <button id="clear-history" class="clear-btn">Clear All</button>
+            
+            <div class="menu-buttons">
+                <button id="play-btn" class="menu-btn primary">PLAY GAME</button>
+                <button id="online-btn" class="menu-btn secondary">ONLINE MODE</button>
+                <button id="shop-btn" class="menu-btn secondary">CHARACTER SHOP</button>
+                <button id="quests-btn" class="menu-btn secondary">DAILY QUESTS</button>
+                <button id="leaderboard-btn" class="menu-btn secondary">LEADERBOARD</button>
+                <button id="settings-btn" class="menu-btn secondary">SETTINGS</button>
+            </div>
+
+            <div class="player-stats">
+                <div class="stat-item">
+                    <span class="stat-label">High Score:</span>
+                    <span id="high-score" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Coins:</span>
+                    <span id="total-coins" class="stat-value">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Level:</span>
+                    <span id="player-level" class="stat-value">1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-header">
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="score-label">Score:</span>
+                    <span id="current-score" class="score-value">0</span>
+                </div>
+                <div class="score-item">
+                    <span class="score-label">Distance:</span>
+                    <span id="distance" class="score-value">0m</span>
+                </div>
+            </div>
+            
+            <div class="game-controls">
+                <div class="control-group">
+                    <button id="time-stop-btn" class="control-btn time-stop" disabled>
+                        <span class="control-icon">⏸️</span>
+                        <span class="control-label">TIME STOP</span>
+                        <span class="cooldown" id="time-stop-cooldown">5s</span>
+                    </button>
+                </div>
+                <div class="control-group">
+                    <button id="future-jump-btn" class="control-btn future-jump" disabled>
+                        <span class="control-icon">⚡</span>
+                        <span class="control-label">FUTURE JUMP</span>
+                        <span class="energy-cost">3⚡</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="player-resources">
+                <div class="resource-item">
+                    <span class="resource-icon">💎</span>
+                    <span id="crystal-count" class="resource-value">0</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-icon">⚡</span>
+                    <span id="energy-count" class="resource-value">0</span>
+                </div>
+                <div class="resource-item">
+                    <span class="resource-icon">🪙</span>
+                    <span id="coin-count" class="resource-value">0</span>
+                </div>
             </div>
         </div>
 
-        <!-- Main Calculator -->
-        <div class="calculator" id="calculator">
-            <!-- Display -->
-            <div class="display-container">
-                <div class="expression" id="expression"></div>
-                <input type="text" id="result" readonly placeholder="0">
+        <div class="game-canvas-container">
+            <canvas id="game-canvas" width="1200" height="600"></canvas>
+            <div class="game-overlay">
+                <div id="game-message" class="game-message"></div>
+                <div id="random-event" class="random-event"></div>
             </div>
+        </div>
 
-            <!-- Scientific Mode Toggle Buttons -->
-            <div class="mode-buttons" id="scientific-buttons">
-                <button class="btn sci-btn" onclick="appendFunction('sin(')">sin</button>
-                <button class="btn sci-btn" onclick="appendFunction('cos(')">cos</button>
-                <button class="btn sci-btn" onclick="appendFunction('tan(')">tan</button>
-                <button class="btn sci-btn" onclick="appendFunction('log(')">log</button>
-                <button class="btn sci-btn" onclick="appendFunction('ln(')">ln</button>
-                <button class="btn sci-btn" onclick="appendValue('π')">π</button>
-                <button class="btn sci-btn" onclick="appendValue('e')">e</button>
-                <button class="btn sci-btn" onclick="appendFunction('√(')">√</button>
-                <button class="btn sci-btn" onclick="appendValue('^')">x^y</button>
-                <button class="btn sci-btn" onclick="appendValue('!')"  >n!</button>
+        <div class="game-footer">
+            <div class="speed-indicator">
+                <span class="speed-label">Speed:</span>
+                <span id="current-speed" class="speed-value">1x</span>
             </div>
-
-            <!-- Main Buttons Grid -->
-            <div class="buttons-grid">
-                <!-- Row 1 -->
-                <button class="btn clear-btn" onclick="clearAll()">AC</button>
-                <button class="btn function-btn" onclick="clearEntry()">CE</button>
-                <button class="btn function-btn" onclick="percentage()">%</button>
-                <button class="btn operator-btn" onclick="appendOperator('/')">÷</button>
-
-                <!-- Row 2 -->
-                <button class="btn number-btn" onclick="appendValue('7')">7</button>
-                <button class="btn number-btn" onclick="appendValue('8')">8</button>
-                <button class="btn number-btn" onclick="appendValue('9')">9</button>
-                <button class="btn operator-btn" onclick="appendOperator('*')">×</button>
-
-                <!-- Row 3 -->
-                <button class="btn number-btn" onclick="appendValue('4')">4</button>
-                <button class="btn number-btn" onclick="appendValue('5')">5</button>
-                <button class="btn number-btn" onclick="appendValue('6')">6</button>
-                <button class="btn operator-btn" onclick="appendOperator('-')">−</button>
-
-                <!-- Row 4 -->
-                <button class="btn number-btn" onclick="appendValue('1')">1</button>
-                <button class="btn number-btn" onclick="appendValue('2')">2</button>
-                <button class="btn number-btn" onclick="appendValue('3')">3</button>
-                <button class="btn operator-btn" onclick="appendOperator('+')">+</button>
-
-                <!-- Row 5 -->
-                <button class="btn number-btn" onclick="appendValue('0')">0</button>
-                <button class="btn function-btn" onclick="appendValue('.')">.</button>
-                <button class="btn function-btn" onclick="deleteChar()">⌫</button>
-                <button class="btn equals-btn" onclick="calculate()">=</button>
+            <div class="round-info">
+                <span class="round-label">Round:</span>
+                <span id="current-round" class="round-value">1</span>
             </div>
+        </div>
+    </div>
+
+    <!-- Pause Menu -->
+    <div id="pause-menu" class="screen">
+        <div class="pause-container">
+            <h2>GAME PAUSED</h2>
+            <div class="pause-buttons">
+                <button id="resume-btn" class="pause-btn primary">RESUME</button>
+                <button id="restart-btn" class="pause-btn secondary">RESTART</button>
+                <button id="main-menu-btn" class="pause-btn secondary">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="screen">
+        <div class="game-over-container">
+            <h2>GAME OVER</h2>
+            <div class="final-stats">
+                <div class="final-stat">
+                    <span class="final-label">Final Score:</span>
+                    <span id="final-score" class="final-value">0</span>
+                </div>
+                <div class="final-stat">
+                    <span class="final-label">Distance:</span>
+                    <span id="final-distance" class="final-value">0m</span>
+                </div>
+                <div class="final-stat">
+                    <span class="final-label">Coins Earned:</span>
+                    <span id="coins-earned" class="final-value">0</span>
+                </div>
+            </div>
+            
+            <div class="game-over-buttons">
+                <button id="continue-btn" class="game-over-btn primary">CONTINUE (AD)</button>
+                <button id="double-coins-btn" class="game-over-btn secondary">DOUBLE COINS (AD)</button>
+                <button id="play-again-btn" class="game-over-btn secondary">PLAY AGAIN</button>
+                <button id="main-menu-game-over-btn" class="game-over-btn secondary">MAIN MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Shop -->
+    <div id="shop-screen" class="screen">
+        <div class="shop-container">
+            <div class="shop-header">
+                <h2>CHARACTER SHOP</h2>
+                <button id="close-shop-btn" class="close-btn">✕</button>
+            </div>
+            
+            <div class="shop-content">
+                <div class="character-grid">
+                    <div class="character-item" data-character="default">
+                        <div class="character-preview default-char"></div>
+                        <h3>Time Runner</h3>
+                        <p>Basic character with balanced stats</p>
+                        <span class="character-price">FREE</span>
+                        <button class="select-char-btn" data-character="default">SELECT</button>
+                    </div>
+                    
+                    <div class="character-item" data-character="ninja">
+                        <div class="character-preview ninja-char"></div>
+                        <h3>Shadow Ninja</h3>
+                        <p>+20% jump height, +15% speed</p>
+                        <span class="character-price">500 🪙</span>
+                        <button class="select-char-btn" data-character="ninja">SELECT</button>
+                    </div>
+                    
+                    <div class="character-item" data-character="wizard">
+                        <div class="character-preview wizard-char"></div>
+                        <h3>Time Wizard</h3>
+                        <p>+30% time stop duration, +25% energy</p>
+                        <span class="character-price">1000 🪙</span>
+                        <button class="select-char-btn" data-character="wizard">SELECT</button>
+                    </div>
+                    
+                    <div class="character-item" data-character="robot">
+                        <div class="character-preview robot-char"></div>
+                        <h3>Cyber Runner</h3>
+                        <p>+40% future jump distance, +20% speed</p>
+                        <span class="character-price">2000 🪙</span>
+                        <button class="select-char-btn" data-character="robot">SELECT</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Quests -->
+    <div id="quests-screen" class="screen">
+        <div class="quests-container">
+            <div class="quests-header">
+                <h2>DAILY QUESTS</h2>
+                <button id="close-quests-btn" class="close-btn">✕</button>
+            </div>
+            
+            <div class="quests-content">
+                <div class="daily-quests">
+                    <h3>Daily Challenges</h3>
+                    <div class="quest-list">
+                        <div class="quest-item" data-quest="distance">
+                            <div class="quest-info">
+                                <h4>Marathon Runner</h4>
+                                <p>Run 5000m in a single game</p>
+                            </div>
+                            <div class="quest-progress">
+                                <span class="progress-text">0/5000m</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="quest-reward">
+                                <span class="reward-amount">+100 🪙</span>
+                            </div>
+                        </div>
+                        
+                        <div class="quest-item" data-quest="crystals">
+                            <div class="quest-info">
+                                <h4>Crystal Collector</h4>
+                                <p>Collect 50 crystals in a single game</p>
+                            </div>
+                            <div class="quest-progress">
+                                <span class="progress-text">0/50</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="quest-reward">
+                                <span class="reward-amount">+75 🪙</span>
+                            </div>
+                        </div>
+                        
+                        <div class="quest-item" data-quest="abilities">
+                            <div class="quest-info">
+                                <h4>Power User</h4>
+                                <p>Use abilities 20 times in a single game</p>
+                            </div>
+                            <div class="quest-progress">
+                                <span class="progress-text">0/20</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="quest-reward">
+                                <span class="reward-amount">+150 🪙</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="weekly-challenges">
+                    <h3>Weekly Challenges</h3>
+                    <div class="quest-list">
+                        <div class="quest-item" data-quest="weekly-score">
+                            <div class="quest-info">
+                                <h4>High Scorer</h4>
+                                <p>Achieve a score of 100,000</p>
+                            </div>
+                            <div class="quest-progress">
+                                <span class="progress-text">0/100,000</span>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="quest-reward">
+                                <span class="reward-amount">+500 🪙</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Mode -->
+    <div id="online-screen" class="screen">
+        <div class="online-container">
+            <div class="online-header">
+                <h2>ONLINE MULTIPLAYER</h2>
+                <button id="close-online-btn" class="close-btn">✕</button>
+            </div>
+            
+            <div class="online-content">
+                <div class="matchmaking">
+                    <h3>Find Opponent</h3>
+                    <button id="find-match-btn" class="match-btn">FIND MATCH</button>
+                    <div id="match-status" class="match-status">Ready to play!</div>
+                </div>
+                
+                <div class="online-stats">
+                    <h3>Online Statistics</h3>
+                    <div class="online-stat-item">
+                        <span class="stat-label">Games Played:</span>
+                        <span id="online-games" class="stat-value">0</span>
+                    </div>
+                    <div class="online-stat-item">
+                        <span class="stat-label">Wins:</span>
+                        <span id="online-wins" class="stat-value">0</span>
+                    </div>
+                    <div class="online-stat-item">
+                        <span class="stat-label">Win Rate:</span>
+                        <span id="win-rate" class="stat-value">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard-screen" class="screen">
+        <div class="leaderboard-container">
+            <div class="leaderboard-header">
+                <h2>LEADERBOARD</h2>
+                <button id="close-leaderboard-btn" class="close-btn">✕</button>
+            </div>
+            
+            <div class="leaderboard-content">
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" data-tab="global">Global</button>
+                    <button class="tab-btn" data-tab="friends">Friends</button>
+                    <button class="tab-btn" data-tab="weekly">Weekly</button>
+                </div>
+                
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <!-- Leaderboard entries will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings-screen" class="screen">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>SETTINGS</h2>
+                <button id="close-settings-btn" class="close-btn">✕</button>
+            </div>
+            
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3>Audio</h3>
+                    <div class="setting-item">
+                        <label for="music-volume">Music Volume:</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="70">
+                        <span class="volume-value">70%</span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="sfx-volume">Sound Effects:</label>
+                        <input type="range" id="sfx-volume" min="0" max="100" value="80">
+                        <span class="volume-value">80%</span>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>Graphics</h3>
+                    <div class="setting-item">
+                        <label for="particle-effects">Particle Effects:</label>
+                        <input type="checkbox" id="particle-effects" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="background-effects">Background Effects:</label>
+                        <input type="checkbox" id="background-effects" checked>
+                    </div>
+                </div>
+                
+                <div class="setting-group">
+                    <h3>Gameplay</h3>
+                    <div class="setting-item">
+                        <label for="auto-run">Auto-Run:</label>
+                        <input type="checkbox" id="auto-run" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="difficulty">Difficulty:</label>
+                        <select id="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ad Overlay -->
+    <div id="ad-overlay" class="ad-overlay">
+        <div class="ad-container">
+            <div class="ad-header">
+                <h3>Advertisement</h3>
+                <div class="ad-timer">5</div>
+            </div>
+            <div class="ad-content">
+                <div class="ad-placeholder">
+                    <p>Ad content would appear here</p>
+                    <p>Skip in <span id="skip-timer">5</span> seconds</p>
+                </div>
+            </div>
+            <button id="skip-ad-btn" class="skip-ad-btn" disabled>SKIP AD</button>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h2>Loading Time Jump...</h2>
+            <p>Preparing your temporal adventure</p>
         </div>
     </div>
 
     <script src="script.js"></script>
-    <script src="app.js"></script>
 </body>
 </html>
