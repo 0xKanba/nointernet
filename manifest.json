@@ -1,22 +1,30 @@
 {
-  "name": "Sphere Calculator",
-  "short_name": "Calculator",
-  "description": "A beautiful, fast, offline calculator that feels like a native app.",
-  "start_url": "./",
+  "name": "Time Jump - Endless Runner Game",
+  "short_name": "Time Jump",
+  "description": "An endless runner game with time manipulation abilities",
+  "start_url": "/",
   "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait",
+  "background_color": "#0c0c0c",
+  "theme_color": "#1a1a2e",
+  "orientation": "landscape",
+  "scope": "/",
   "icons": [
     {
-      "src": "icons/calc192.png",
-      "sizes": "192x192",
+      "src": "/icons/game16.png",
+      "sizes": "16x16",
       "type": "image/png"
     },
     {
-      "src": "icons/calc512.png",
+      "src": "/icons/game32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/game512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "categories": ["games", "entertainment"],
+  "lang": "en"
 }
