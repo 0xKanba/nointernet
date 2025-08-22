@@ -1,105 +1,339 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
+    <title>Time Jump - Endless Runner Game</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="/icons/calc16.png" type="image/png">
-    <link rel="shortcut icon" href="/icons/calc512.png" type="image/png">
+    <link rel="icon" href="/icons/game16.png" type="image/png">
+    <link rel="shortcut icon" href="/icons/game512.png" type="image/png">
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/icons/calc32.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/game32.png">
     <meta name="theme-color" content="#1a1a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 3D Background -->
-    <div class="bg-3d">
-        <div class="floating-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-            <div class="shape shape-4"></div>
-            <div class="shape shape-5"></div>
-        </div>
-        <div class="grid-overlay"></div>
+    <!-- Game Background with Parallax Effect -->
+    <div class="game-background">
+        <div class="parallax-layer bg-stars"></div>
+        <div class="parallax-layer bg-nebula"></div>
+        <div class="parallax-layer bg-planets"></div>
+        <div class="parallax-layer bg-asteroids"></div>
     </div>
 
-
-    <!-- Calculator Container -->
-    <div class="calculator-container">
-        <!-- History Panel -->
-        <div class="history-panel" id="history-panel">
-            <div class="history-header">
-                <h4 id="history-title">History</h4>
-                <button class="collapse-btn" id="collapse-btn">▼</button>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="game-logo">
+                <h1 class="logo-text">TIME JUMP</h1>
+                <div class="logo-subtitle">Endless Runner Adventure</div>
             </div>
-            <div class="history-content">
-                <ul id="history-list"></ul>
-                <button id="clear-history" class="clear-btn">Clear All</button>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loading-progress"></div>
             </div>
+            <div class="loading-text">Loading Time Streams...</div>
         </div>
+    </div>
 
-        <!-- Main Calculator -->
-        <div class="calculator" id="calculator">
-            <!-- Display -->
-            <div class="display-container">
-                <div class="expression" id="expression"></div>
-                <input type="text" id="result" readonly placeholder="0">
+    <!-- Main Menu -->
+    <div id="main-menu" class="main-menu hidden">
+        <div class="menu-container">
+            <div class="game-title">
+                <h1 class="title-main">TIME JUMP</h1>
+                <div class="title-subtitle">Navigate Through Time</div>
+            </div>
+            
+            <div class="menu-buttons">
+                <button class="menu-btn primary" id="play-btn">PLAY GAME</button>
+                <button class="menu-btn secondary" id="online-btn">ONLINE MODE</button>
+                <button class="menu-btn secondary" id="shop-btn">CHARACTER SHOP</button>
+                <button class="menu-btn secondary" id="quests-btn">DAILY QUESTS</button>
+                <button class="menu-btn secondary" id="leaderboard-btn">LEADERBOARD</button>
+                <button class="menu-btn secondary" id="settings-btn">SETTINGS</button>
             </div>
 
-            <!-- Scientific Mode Toggle Buttons -->
-            <div class="mode-buttons" id="scientific-buttons">
-                <button class="btn sci-btn" onclick="appendFunction('sin(')">sin</button>
-                <button class="btn sci-btn" onclick="appendFunction('cos(')">cos</button>
-                <button class="btn sci-btn" onclick="appendFunction('tan(')">tan</button>
-                <button class="btn sci-btn" onclick="appendFunction('log(')">log</button>
-                <button class="btn sci-btn" onclick="appendFunction('ln(')">ln</button>
-                <button class="btn sci-btn" onclick="appendValue('π')">π</button>
-                <button class="btn sci-btn" onclick="appendValue('e')">e</button>
-                <button class="btn sci-btn" onclick="appendFunction('√(')">√</button>
-                <button class="btn sci-btn" onclick="appendValue('^')">x^y</button>
-                <button class="btn sci-btn" onclick="appendValue('!')"  >n!</button>
-            </div>
-
-            <!-- Main Buttons Grid -->
-            <div class="buttons-grid">
-                <!-- Row 1 -->
-                <button class="btn clear-btn" onclick="clearAll()">AC</button>
-                <button class="btn function-btn" onclick="clearEntry()">CE</button>
-                <button class="btn function-btn" onclick="percentage()">%</button>
-                <button class="btn operator-btn" onclick="appendOperator('/')">÷</button>
-
-                <!-- Row 2 -->
-                <button class="btn number-btn" onclick="appendValue('7')">7</button>
-                <button class="btn number-btn" onclick="appendValue('8')">8</button>
-                <button class="btn number-btn" onclick="appendValue('9')">9</button>
-                <button class="btn operator-btn" onclick="appendOperator('*')">×</button>
-
-                <!-- Row 3 -->
-                <button class="btn number-btn" onclick="appendValue('4')">4</button>
-                <button class="btn number-btn" onclick="appendValue('5')">5</button>
-                <button class="btn number-btn" onclick="appendValue('6')">6</button>
-                <button class="btn operator-btn" onclick="appendOperator('-')">−</button>
-
-                <!-- Row 4 -->
-                <button class="btn number-btn" onclick="appendValue('1')">1</button>
-                <button class="btn number-btn" onclick="appendValue('2')">2</button>
-                <button class="btn number-btn" onclick="appendValue('3')">3</button>
-                <button class="btn operator-btn" onclick="appendOperator('+')">+</button>
-
-                <!-- Row 5 -->
-                <button class="btn number-btn" onclick="appendValue('0')">0</button>
-                <button class="btn function-btn" onclick="appendValue('.')">.</button>
-                <button class="btn function-btn" onclick="deleteChar()">⌫</button>
-                <button class="btn equals-btn" onclick="calculate()">=</button>
+            <div class="player-stats">
+                <div class="stat-item">
+                    <span class="stat-label">High Score:</span>
+                    <span class="stat-value" id="high-score">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Coins:</span>
+                    <span class="stat-value" id="total-coins">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Level:</span>
+                    <span class="stat-value" id="player-level">1</span>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Game Canvas Container -->
+    <div id="game-container" class="game-container hidden">
+        <canvas id="gameCanvas" width="1200" height="600"></canvas>
+        
+        <!-- Game UI Overlay -->
+        <div class="game-ui">
+            <!-- Top HUD -->
+            <div class="top-hud">
+                <div class="score-display">
+                    <div class="score-label">SCORE</div>
+                    <div class="score-value" id="current-score">0</div>
+                </div>
+                <div class="distance-display">
+                    <div class="distance-label">DISTANCE</div>
+                    <div class="distance-value" id="distance-traveled">0m</div>
+                </div>
+                <div class="coins-display">
+                    <div class="coins-label">COINS</div>
+                    <div class="coins-value" id="coins-collected">0</div>
+                </div>
+            </div>
+
+            <!-- Ability Bar -->
+            <div class="ability-bar">
+                <div class="ability-item">
+                    <button class="ability-btn" id="time-stop-btn" disabled>
+                        <div class="ability-icon">⏸️</div>
+                        <div class="ability-label">TIME STOP</div>
+                        <div class="cooldown-bar">
+                            <div class="cooldown-fill" id="time-stop-cooldown"></div>
+                        </div>
+                    </button>
+                </div>
+                <div class="ability-item">
+                    <button class="ability-btn" id="future-jump-btn" disabled>
+                        <div class="ability-icon">⏭️</div>
+                        <div class="ability-label">FUTURE JUMP</div>
+                        <div class="energy-bar">
+                            <div class="energy-fill" id="future-jump-energy"></div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <button class="control-btn" id="jump-btn">JUMP</button>
+                <button class="control-btn" id="pause-btn">PAUSE</button>
+            </div>
+        </div>
+
+        <!-- Pause Menu -->
+        <div id="pause-menu" class="pause-menu hidden">
+            <div class="pause-content">
+                <h2>GAME PAUSED</h2>
+                <div class="pause-buttons">
+                    <button class="pause-btn" id="resume-btn">RESUME</button>
+                    <button class="pause-btn" id="restart-btn">RESTART</button>
+                    <button class="pause-btn" id="main-menu-btn">MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over" class="game-over hidden">
+            <div class="game-over-content">
+                <h2>GAME OVER</h2>
+                <div class="final-stats">
+                    <div class="final-stat">
+                        <span class="stat-label">Final Score:</span>
+                        <span class="stat-value" id="final-score">0</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="stat-label">Distance:</span>
+                        <span class="stat-value" id="final-distance">0m</span>
+                    </div>
+                    <div class="final-stat">
+                        <span class="stat-label">Coins Collected:</span>
+                        <span class="stat-value" id="final-coins">0</span>
+                    </div>
+                </div>
+                <div class="game-over-buttons">
+                    <button class="game-over-btn primary" id="play-again-btn">PLAY AGAIN</button>
+                    <button class="game-over-btn secondary" id="double-coins-btn">DOUBLE COINS (AD)</button>
+                    <button class="game-over-btn secondary" id="continue-btn">CONTINUE (AD)</button>
+                    <button class="game-over-btn secondary" id="main-menu-game-over-btn">MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Character Shop -->
+    <div id="character-shop" class="character-shop hidden">
+        <div class="shop-container">
+            <div class="shop-header">
+                <h2>CHARACTER SHOP</h2>
+                <button class="close-btn" id="close-shop-btn">×</button>
+            </div>
+            <div class="shop-content">
+                <div class="character-grid" id="character-grid">
+                    <!-- Characters will be populated by JavaScript -->
+                </div>
+                <div class="shop-info">
+                    <div class="current-character">
+                        <h3>Current Character</h3>
+                        <div class="character-preview" id="current-character-preview">
+                            <!-- Current character display -->
+                        </div>
+                    </div>
+                    <div class="purchase-info" id="purchase-info">
+                        <!-- Purchase information -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Quests -->
+    <div id="daily-quests" class="daily-quests hidden">
+        <div class="quests-container">
+            <div class="quests-header">
+                <h2>DAILY QUESTS</h2>
+                <button class="close-btn" id="close-quests-btn">×</button>
+            </div>
+            <div class="quests-content">
+                <div class="quest-list" id="quest-list">
+                    <!-- Quests will be populated by JavaScript -->
+                </div>
+                <div class="quests-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="quests-progress-fill"></div>
+                    </div>
+                    <div class="progress-text">Progress: <span id="quests-progress-text">0/3</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Mode -->
+    <div id="online-mode" class="online-mode hidden">
+        <div class="online-container">
+            <div class="online-header">
+                <h2>ONLINE MODE</h2>
+                <button class="close-btn" id="close-online-btn">×</button>
+            </div>
+            <div class="online-content">
+                <div class="matchmaking">
+                    <h3>Find Opponent</h3>
+                    <button class="matchmaking-btn" id="find-match-btn">FIND MATCH</button>
+                    <div class="matchmaking-status" id="matchmaking-status">Ready to find opponent</div>
+                </div>
+                <div class="online-stats">
+                    <h3>Online Statistics</h3>
+                    <div class="online-stat">
+                        <span class="stat-label">Wins:</span>
+                        <span class="stat-value" id="online-wins">0</span>
+                    </div>
+                    <div class="online-stat">
+                        <span class="stat-label">Losses:</span>
+                        <span class="stat-value" id="online-losses">0</span>
+                    </div>
+                    <div class="online-stat">
+                        <span class="stat-label">Win Rate:</span>
+                        <span class="stat-value" id="win-rate">0%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaderboard -->
+    <div id="leaderboard" class="leaderboard hidden">
+        <div class="leaderboard-container">
+            <div class="leaderboard-header">
+                <h2>LEADERBOARD</h2>
+                <button class="close-btn" id="close-leaderboard-btn">×</button>
+            </div>
+            <div class="leaderboard-content">
+                <div class="leaderboard-tabs">
+                    <button class="tab-btn active" data-tab="global">Global</button>
+                    <button class="tab-btn" data-tab="friends">Friends</button>
+                    <button class="tab-btn" data-tab="weekly">Weekly</button>
+                </div>
+                <div class="leaderboard-list" id="leaderboard-list">
+                    <!-- Leaderboard entries will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div id="settings" class="settings hidden">
+        <div class="settings-container">
+            <div class="settings-header">
+                <h2>SETTINGS</h2>
+                <button class="close-btn" id="close-settings-btn">×</button>
+            </div>
+            <div class="settings-content">
+                <div class="setting-group">
+                    <h3>Audio</h3>
+                    <div class="setting-item">
+                        <label for="music-volume">Music Volume</label>
+                        <input type="range" id="music-volume" min="0" max="100" value="70">
+                        <span class="volume-value" id="music-volume-value">70%</span>
+                    </div>
+                    <div class="setting-item">
+                        <label for="sfx-volume">Sound Effects Volume</label>
+                        <input type="range" id="sfx-volume" min="0" max="100" value="80">
+                        <span class="volume-value" id="sfx-volume-value">80%</span>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h3>Graphics</h3>
+                    <div class="setting-item">
+                        <label for="particle-effects">Particle Effects</label>
+                        <input type="checkbox" id="particle-effects" checked>
+                    </div>
+                    <div class="setting-item">
+                        <label for="background-effects">Background Effects</label>
+                        <input type="checkbox" id="background-effects" checked>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <h3>Gameplay</h3>
+                    <div class="setting-item">
+                        <label for="difficulty">Difficulty</label>
+                        <select id="difficulty">
+                            <option value="easy">Easy</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <label for="auto-save">Auto Save</label>
+                        <input type="checkbox" id="auto-save" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ad Container (Hidden by default) -->
+    <div id="ad-container" class="ad-container hidden">
+        <div class="ad-content">
+            <div class="ad-header">
+                <h3>Advertisement</h3>
+                <button class="close-btn" id="close-ad-btn">×</button>
+            </div>
+            <div class="ad-body">
+                <div class="ad-placeholder">
+                    <div class="ad-text">Ad content would appear here</div>
+                    <div class="ad-timer">Skip in <span id="ad-timer">5</span>s</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification System -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="game.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
