@@ -2,11 +2,11 @@
   "name": "تطبيق الصور الرياضية",
   "short_name": "صور رياضية",
   "description": "معرض صور رياضية تفاعلي",
-  "start_url": "./",
+  "start_url": "/z/",
   "display": "standalone",
   "background_color": "#f5f7fa",
   "theme_color": "#1a73e8",
-  "scope": "/z/",
+  "scope": "./",
   "icons": [
     {
       "src": "./icon-192.png",
