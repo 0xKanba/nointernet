@@ -7,10 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a73e8">
-    <!-- إضافة رؤوس مهمة -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
 </head>
 <body>
     <header>
@@ -35,49 +31,18 @@
         </div>
     </main>
 
-    <!-- إضافة شفرة تسجيل Service Worker مباشرة في HTML -->
     <script>
-        // تسجيل Service Worker فوراً
+        // تسجيل Service Worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
+            window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js', { scope: './' })
-                    .then(function(registration) {
+                    .then(registration => {
                         console.log('Service Worker مسجل بنجاح:', registration);
-                        
-                        // التحقق من التحديثات
-                        registration.addEventListener('updatefound', function() {
-                            const installingWorker = registration.installing;
-                            installingWorker.addEventListener('statechange', function() {
-                                if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('يوجد تحديث جديد');
-                                    showUpdateNotification();
-                                }
-                            });
-                        });
                     })
-                    .catch(function(error) {
+                    .catch(error => {
                         console.error('فشل تسجيل Service Worker:', error);
                     });
             });
-        }
-        
-        function showUpdateNotification() {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 70px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: #1a73e8;
-                color: white;
-                padding: 10px 20px;
-                border-radius: 5px;
-                z-index: 1000;
-                cursor: pointer;
-            `;
-            notification.textContent = 'يوجد تحديث جديد. انقر للتحديث.';
-            notification.onclick = () => window.location.reload();
-            document.body.appendChild(notification);
         }
     </script>
     
