@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sports-gallery-v2';
+const CACHE_NAME = 'sports-gallery-v3';
 const urlsToCache = [
     '/z/',
     '/z/index.html',
