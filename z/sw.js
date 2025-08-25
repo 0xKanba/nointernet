@@ -1,12 +1,12 @@
-const CACHE_NAME = 'sports-gallery-v3';
+const CACHE_NAME = 'sports-gallery-v5';
 const urlsToCache = [
-    '/z/',
-    '/z/index.html',
-    '/z/style.css',
-    '/z/app.js',
-    '/z/manifest.json',
-    '/z/icon-192.png',
-    '/z/icon-512.png',
+    './',
+    './index.html',
+    './styles.css',
+    './app.js',
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png',
     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1554080351-a76ca4bcf599?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1595435934249-5c1ca5a0690c?auto=format&fit=crop&w=800&q=80'
@@ -24,27 +24,26 @@ self.addEventListener('install', event => {
     );
 });
 
-// استراتيجية التخزين المؤقت المتقدمة
+// استراتيجية التخزين المؤقت: Cache First
 self.addEventListener('fetch', event => {
     event.respondWith(
         caches.match(event.request)
             .then(response => {
-                // إذا وجدنا الرد في التخزين المؤقت، نعيده
+                // إذا وجد في التخزين المؤقت، أرجعه
                 if (response) {
                     return response;
                 }
                 
-                // خلاف ذلك، نحاول جلبه من الشبكة
+                // خلاف ذلك، جلب من الشبكة
                 return fetch(event.request)
                     .then(response => {
-                        // التحقق من أن الرد صالح
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
+                        // التحقق من صحة الاستجابة
+                        if (!response || response.status !== 200) {
                             return response;
                         }
                         
-                        // نسخ الرد لأنه يمكن استخدامه مرة واحدة فقط
+                        // نسخ الاستجابة وتخزينها
                         const responseToCache = response.clone();
-                        
                         caches.open(CACHE_NAME)
                             .then(cache => {
                                 cache.put(event.request, responseToCache);
@@ -53,9 +52,9 @@ self.addEventListener('fetch', event => {
                         return response;
                     })
                     .catch(() => {
-                        // في حالة فشل الشبكة، نحاول إرجاع صفحة الخطأ
+                        // في حالة فشل الشبكة، إرجاع الصفحة الرئيسية للتنقل
                         if (event.request.mode === 'navigate') {
-                            return caches.match('/z/index.html');
+                            return caches.match('./index.html');
                         }
                     });
             })
@@ -70,7 +69,6 @@ self.addEventListener('activate', event => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        console.log('حذف التخزين المؤقت القديم:', cacheName);
                         return caches.delete(cacheName);
                     }
                 })
@@ -78,11 +76,4 @@ self.addEventListener('activate', event => {
         })
         .then(() => self.clients.claim())
     );
-});
-
-// معالجة الرسائل من التطبيق
-self.addEventListener('message', event => {
-    if (event.data && event.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
 });
