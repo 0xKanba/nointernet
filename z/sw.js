@@ -2,7 +2,7 @@ const CACHE_NAME = 'sports-gallery-v2';
 const urlsToCache = [
     '/z/',
     '/z/index.html',
-    '/z/styles.css',
+    '/z/style.css',
     '/z/app.js',
     '/z/manifest.json',
     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
