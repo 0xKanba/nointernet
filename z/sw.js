@@ -5,6 +5,8 @@ const urlsToCache = [
     '/z/style.css',
     '/z/app.js',
     '/z/manifest.json',
+    '/z/icon-192.png',
+    '/z/icon-512.png',
     'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1554080351-a76ca4bcf599?auto=format&fit=crop&w=800&q=80',
     'https://images.unsplash.com/photo-1595435934249-5c1ca5a0690c?auto=format&fit=crop&w=800&q=80'
